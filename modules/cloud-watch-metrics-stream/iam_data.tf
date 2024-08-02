@@ -209,7 +209,6 @@ data "aws_iam_policy_document" "iam_role_task_policy_sysdig_cloudwatch_metric_st
 }
 
 data "aws_iam_policy_document" "sysdig_cloudwatch_integration_monitoring_role_assume_role" {
-    count = var.sysdig_external_id ? "sts:ExternalId" : 0 # Check this condition
     statement {
         effect = "Allow"
         principals {
@@ -217,6 +216,11 @@ data "aws_iam_policy_document" "sysdig_cloudwatch_integration_monitoring_role_as
             type        = "AWS"
         }
         actions = ["sts:AssumeRole"]
+        condition {
+            test     = "ForAnyValue:StringEquals"
+            variable = "sts:ExternalId"
+            values   = [var.sysdig_external_id]
+        }
     }
 }
 

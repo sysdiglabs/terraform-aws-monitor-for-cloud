@@ -40,16 +40,16 @@ resource "aws_iam_role" "sysdig_cloudwatch_metric_stream_role" {
 }
 
 resource "aws_iam_role" "sysdig_cloudwatch_integration_monitoring_role" {
-    count = var.create_new_role ? 1 : 0 # This use CreateNewSysdigRole condition for cloudformation
+    count = var.create_new_role ? 1 : 0
     name   = var.monitoring_role_name
     path   = "/"
     description = "A role to check status of stack creation and metric stream itself"
-    assume_role_policy = data.aws_iam_policy_document.sysdig_cloudwatch_integration_monitoring_role_assume_role[0].json
+    assume_role_policy = data.aws_iam_policy_document.sysdig_cloudwatch_integration_monitoring_role_assume_role.json
 }
 
 resource "aws_iam_role_policy" "cloud_monitoring_policy" {
-    depends_on = [WaitCondition] ## RESEARCH terraform way to do this
+    depends_on = [ aws_iam_role.sysdig_cloudwatch_integration_monitoring_role[0] ]
     name   = "sysdig_cloudwatch_integration_monitoring_policy-${data.aws_caller_identity.me.account_id}"
-    role   = var.monitoring_role_name ## Is this correct?
+    role   = var.monitoring_role_name
     policy = data.aws_iam_policy_document.iam_role_task_policy_cloud_monitoring_policy.json
 }

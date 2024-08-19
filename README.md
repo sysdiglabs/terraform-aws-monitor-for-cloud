@@ -1,56 +1,57 @@
-# terraform-aws-monitor-for-cloud
+# Sysdig Monitor for Cloud in AWS
 Monitor repo for Terraform AWS modules in sysdiglabs
 
-## How to run the module
+For now this repository provides the CloudWatch Metrics Stream functionality
 
-### Configure the parameters in the module
+* **[CloudWatch Metrics Stream](https://docs.sysdig.com/en/docs/sysdig-monitor/integrations/cloud-accounts/connect-aws-account/cloudwatch-monitoring/)**:  You can collect both general metadata and various types of CloudWatch metrics from your AWS environment for this purpose <br/>
 
-Select your **api_key** and **sysdig_external_id** from your Sysdig monitor profile:
+## Usage
 
-<img src="api_key.png" alt="Sysdig API key" width="400"/>
+There are several ways to deploy Secure for Cloud in you AWS infrastructure,
+- **[`/examples`](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples)** for the most common scenarios
+  - [CloudWatch Metrics Stream Single Account](https://github.com/sysdiglabs/terraform-aws-secure-for-cloud/tree/master/examples/cloudwatch-metrics-stream-single-account/)
 
-<img src="sysdig_external_id.png" alt="Sysdig API key" width="400"/>
+<br/>
 
-And select your **sysdig_aws_account_id** from you aws profile:
+In the long-term our purpose is to evaluate those use-cases and if they're common enough, convert them into examples to make their usage easier.
 
-<img src="sysdig_aws_account_id.png" alt="Sysdig API key" width="400"/>
+## Required Permissions
 
-```
-module "sysdig_cloudwatch_metrics_stream" {
-    source = "./cloud-watch-metrics-stream"
-    
-    api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-    sysdig_site = "https://app-staging.sysdigcloud.com"
-    sysdig_aws_account_id = "xxxx-xxxx-xxxx" # this is draios-dev
-    monitoring_role_name = "TestTerraformSysdigCloudwatchIntegrationMonitoringRole"
-    create_new_role = true
-    sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-}
-```
+### Provisioning Permissions
 
-### Config the terraform provider:
+Terraform provider credentials/token, requires `Administrative` permissions in order to be able to create the
+resources specified in the per-example diagram.
 
-```
-terraform {
-  required_version = ">= 1.0.0"
-  required_providers {
-    aws = {
-      version = ">= 5.0.0"
-    }
-  }
-}
+Some components may vary, or may be deployed on different accounts (depending on the example). You can check full resources on each module "Resources" section in their README's. You can also check our source code and suggest changes.
 
-provider "aws" {
-  region                      = "eu-west-1"
-}
-```
+This would be an overall schema of the **created resources**, for the default setup.
 
-### Execute terraform module
+- CloudWatch / S3 / Kinesis Firehose
+- SSM Parameter for Sysdig API Token Storage
+- Sysdig role for Compliance
 
-Go to `/modules`directory and run the following commands:
+## Upgrading
 
- - `terraform init` : Initialyze terraform directory using the provider config, this following command will create the file `.terraform.lock.hcl` and you will be able to create the resources.
- - `terraform plan` : Show every single resource that is going to be created/changed/deleted
- - `terraform apply`: it will ask if you approves the creation (write yes because I supose you are following these steps for that reason :D)
+1. Uninstall previous deployment resources before upgrading
+  ```
+  $ terraform destroy
+  ```
+
+2. Upgrade the full terraform example with
+  ```
+  $ terraform init -upgrade
+  $ terraform plan
+  $ terraform apply
+  ```
+
+<br/>
+
+## Authors
+
+Module is maintained and supported by [Sysdig](https://sysdig.com).
+
+## License
+
+Apache 2 Licensed. See LICENSE for full details.
 
 

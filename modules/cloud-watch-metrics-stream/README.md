@@ -49,7 +49,6 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 |<a name="api_key"></a> [api\_key](#input\_api\_key) | Your Sysdig API Key | `string` | n/a | yes |
-|<a name="regions"></a> [regions](#input\_regions) | Comma separated list of regions to enable metric streaming | `list(string)` | `[""]` | yes |
 |<a name="sysdig_site"></a> [sysdig\_site](#input\_sysdig\_site) | Sysdig input endpoint | `string` | n/a | yes |
 |<a name="sysdig_aws_account_id"> </a> [sysdig\_aws\_account\_id](#input\_sysdig\_aws\_account\_id) | Sysdig AWS accountId that will assume MonitoringRole to check status of CloudWatch metric stream | `string` | n/a | yes |
 |<a name="monitoring_role_name"></a> [monitoring\_role\_name](#input\_monitoring\_role\_name) | Name for a role which will be used by Sysdig to monitor status of the stream | `string` | `"SysdigCloudwatchIntegrationMonitoringRole"`| yes |

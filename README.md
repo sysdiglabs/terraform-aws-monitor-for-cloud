@@ -9,7 +9,7 @@ For now this repository provides the CloudWatch Metrics Stream functionality
 
 There are several ways to deploy Secure for Cloud in you AWS infrastructure,
 - **[`/examples`](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples)** for the most common scenarios
-  - [CloudWatch Metrics Stream Single Account](https://github.com/sysdiglabs/terraform-aws-secure-for-cloud/tree/master/examples/cloudwatch-metrics-stream-single-account/)
+  - [CloudWatch Metrics Stream Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/cloudwatch-metrics-stream-single-account/)
 
 <br/>
 

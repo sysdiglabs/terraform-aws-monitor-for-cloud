@@ -1,3 +1,7 @@
+locals {
+    has_spot_feed_bucket_name = var.spot_data_feed_bucket_name != ""
+}
+
 resource "aws_s3_bucket" "sysdig_curs3_bucket" {
     bucket = var.s3_bucket_name
     acl    = "private"
@@ -114,10 +118,17 @@ resource "aws_glue_crawler" "cur_crawler" {
     }
 }
 
+data "archive_file" "lambda_crawler_zip" {
+    type        = "zip"
+    source_dir  = "${path.module}/lambda_crawler"
+    output_path = "${path.module}/lambda_crawler.zip"
+}
+
 resource "aws_lambda_function" "cur_initializer" {
     function_name = "AWSCURInitializer"
     handler       = "index.handler"
     runtime       = "nodejs16.x"
+    filename      = data.archive_file.lambda_crawler_zip.output_path
     timeout       = 30
     role          = aws_iam_role.cur_crawler_lambda_executor.arn
     memory_size   = 128
@@ -128,41 +139,83 @@ resource "aws_lambda_function" "cur_initializer" {
             CrawlerSuffix = "sysdig_aws_private_billing"
         }
     }
+}
 
-    code {
-        zip_file = <<-EOT
-        const AWS = require('aws-sdk');
-        const response = require('./cfn-response');
-        exports.handler = function(event, context, callback) {
-            if (event.RequestType === 'Delete') {
-            response.send(event, context, response.SUCCESS);
-            } else {
-            const glue = new AWS.Glue();
-            const suffix = process.env.CrawlerSuffix
-            glue.startCrawler({ Name: `AWSCURCrawler-${suffix}` }, function(err, data) {
-                if (err) {
-                const responseData = JSON.parse(this.httpResponse.body);
-                if (responseData['__type'] == 'CrawlerRunningException') {
-                    callback(null, responseData.Message);
-                } else {
-                    const responseString = JSON.stringify(responseData);
-                    if (event.ResponseURL) {
-                    response.send(event, context, response.FAILED,{ msg: responseString });
-                    } else {
-                    callback(responseString);
-                    }
+// This resource is used to trigger the lambda function but im not sure if it is going to work because in Cloudformation it is using Custom::AWSStartCURCrawler
+resource "aws_lambda_invocation" "start_cur_crawler" {
+    function_name = aws_lambda_function.cur_initializer.function_name
+    input         = jsonencode({})
+    depends_on    = [aws_lambda_function.cur_initializer]
+}
+
+resource "aws_lambda_permission" "s3_cur_event_lambda" {
+    statement_id  = "AllowS3InvokeLambda"
+    action        = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.cur_initializer.function_name
+    principal     = "s3.amazonaws.com"
+    source_account = var.sysdig_aws_account_id
+    source_arn    = "arn:${data.aws_partition.current}:s3:::${var.s3_bucket_name}"
+}
+
+data "archive_file" "lambda_notification_zip" {
+    type        = "zip"
+    source_dir  = "${path.module}/lambda_notification"
+    output_path = "${path.module}/lambda_notification.zip"
+}
+
+resource "aws_lambda_function" "s3_cur_notification" {
+    function_name = "s3_cur_notification"
+    handler       = "index.handler"
+    runtime       = "nodejs16.x"
+    filename      = data.archive_file.lambda_notification_zip.output_path
+    timeout       = 30
+    role          = aws_iam_role.s3_cur_lambda_executor.arn
+
+    reserved_concurrent_executions = 1
+}
+
+resource "null_resource" "put_s3_cur_notification" {
+    provisioner "local-exec" {
+        command = <<-EOT
+        aws lambda invoke \
+            --function-name ${aws_lambda_function.s3_cur_notification.function_name} \
+            --payload '{
+            "RequestType": "Create",
+                "ResourceProperties": {
+                    "BucketName": "${var.s3_bucket_name}",
+                    "TargetLambdaArn": "${aws_lambda_function.cur_initializer.arn}",
+                    "ReportKey": "${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
                 }
-                }
-                else {
-                if (event.ResponseURL) {
-                    response.send(event, context, response.SUCCESS);
-                } else {
-                    callback(null, response.SUCCESS);
-                }
-                }
-            });
-            }
-        };
+            }' \
+            response.json
         EOT
+    }
+
+    triggers = {
+        bucket_name    = var.s3_bucket_name
+        target_lambda  = aws_lambda_function.cur_initializer.arn
+        report_key     = "${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
+    }
+}
+
+resource "aws_glue_catalog_table" "cur_report_status_table" {
+    name          = "sysdig_private_billing_cost_and_usage_data_status"
+    database_name = aws_glue_catalog_database.cur_database.name
+    catalog_id    = data.aws_caller_identity.current.account_id
+    table_type    = "EXTERNAL_TABLE"
+
+    storage_descriptor {
+        location      = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing/cost_and_usage_data_status/"
+        input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+        output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+
+        ser_de_info {
+            serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+        }
+
+        columns {
+            name = "status"
+            type = "string"
+        }
     }
 }

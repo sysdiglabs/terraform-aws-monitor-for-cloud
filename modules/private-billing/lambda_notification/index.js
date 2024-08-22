@@ -16,9 +16,9 @@ exports.handler = function(event, context, callback) {
     const newNotificationConfig = {};
     if (event.RequestType !== 'Delete') {
         newNotificationConfig.LambdaFunctionConfigurations = [{
-        Events: [ 's3:ObjectCreated:*' ],
-        LambdaFunctionArn: event.ResourceProperties.TargetLambdaArn || 'missing arn',
-        Filter: { Key: { FilterRules: [ { Name: 'prefix', Value: event.ResourceProperties.ReportKey } ] } }
+            Events: [ 's3:ObjectCreated:*' ],
+            LambdaFunctionArn: event.ResourceProperties.TargetLambdaArn || 'missing arn',
+            Filter: { Key: { FilterRules: [ { Name: 'prefix', Value: event.ResourceProperties.ReportKey } ] } }
         }];
     }
     putConfigRequest(newNotificationConfig).then(function(result) {

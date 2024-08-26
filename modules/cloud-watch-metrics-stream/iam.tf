@@ -1,25 +1,5 @@
-resource "aws_iam_role" "sysdig_cloudwatch_metric_stream_stack_set_administration_role" {
-    name               = "SysdigStackSetAdminRole-${data.aws_caller_identity.me.account_id}"
-    path               = "/"
-    assume_role_policy = data.aws_iam_policy_document.cloudwatch_metric_stream_stack_set_administration_assume_role.json
-    inline_policy {
-        name   = "SysdigStreamCfnStackSetAssumeRole"
-        policy = data.aws_iam_policy_document.iam_role_task_policy_cloudwatch_metric_stream_stack_set_administration.json
-    }
-}
-
-resource "aws_iam_role" "sysdig_cloudwatch_metric_stream_stack_set_execution_role" {
-    name               = "SysdigStackSetExecRole-${data.aws_caller_identity.me.account_id}"
-    path               = "/"
-    assume_role_policy = data.aws_iam_policy_document.cloudwatch_metric_stream_stack_set_execution_assume_role.json
-    inline_policy {
-        name   = "SysdigStreamCfnStackAssumeRole"
-        policy = data.aws_iam_policy_document.iam_role_task_policy_cloudwatch_metric_stream_stack_set_execution.json
-    }
-}
-
 resource "aws_iam_role" "service_role" {
-    name               = "SysdigServiceRole-${data.aws_caller_identity.me.account_id}"
+    name               = "SysdigServiceRole-${data.aws_region.current.name}-${data.aws_caller_identity.me.account_id}"
     path               = "/"
     assume_role_policy = data.aws_iam_policy_document.service_role_assume_role.json
     inline_policy {
@@ -29,7 +9,7 @@ resource "aws_iam_role" "service_role" {
 }
 
 resource "aws_iam_role" "sysdig_cloudwatch_metric_stream_role" {
-    name                = "SysdigStreamRole-${data.aws_caller_identity.me.account_id}"
+    name                = "SysdigStreamRole-${data.aws_region.current.name}-${data.aws_caller_identity.me.account_id}"
     description         = "A metric stream role"
     path                = "/"
     assume_role_policy  = data.aws_iam_policy_document.sysdig_cloudwatch_metric_stream_role_assume_role.json
@@ -41,7 +21,7 @@ resource "aws_iam_role" "sysdig_cloudwatch_metric_stream_role" {
 
 resource "aws_iam_role" "sysdig_cloudwatch_integration_monitoring_role" {
     count = var.create_new_role ? 1 : 0
-    name   = var.monitoring_role_name
+    name   = "${var.monitoring_role_name}-${data.aws_region.current.name}-${data.aws_caller_identity.me.account_id}"
     path   = "/"
     description = "A role to check status of stack creation and metric stream itself"
     assume_role_policy = data.aws_iam_policy_document.sysdig_cloudwatch_integration_monitoring_role_assume_role.json
@@ -49,7 +29,7 @@ resource "aws_iam_role" "sysdig_cloudwatch_integration_monitoring_role" {
 
 resource "aws_iam_role_policy" "cloud_monitoring_policy" {
     depends_on = [ aws_iam_role.sysdig_cloudwatch_integration_monitoring_role[0] ]
-    name   = "sysdig_cloudwatch_integration_monitoring_policy-${data.aws_caller_identity.me.account_id}"
-    role   = var.monitoring_role_name
+    name   = aws_iam_role.sysdig_cloudwatch_integration_monitoring_role[0].id
+    role   = "${var.monitoring_role_name}-${data.aws_region.current.name}-${data.aws_caller_identity.me.account_id}"
     policy = data.aws_iam_policy_document.iam_role_task_policy_cloud_monitoring_policy.json
 }

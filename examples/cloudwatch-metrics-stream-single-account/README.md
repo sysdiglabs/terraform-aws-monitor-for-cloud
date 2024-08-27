@@ -55,7 +55,7 @@ module "cloudwatch_metrics_stream_single_account" {
 
 ### Multiple regions
 
-```
+```terraform
 terraform {
    required_providers {
       sysdig = {

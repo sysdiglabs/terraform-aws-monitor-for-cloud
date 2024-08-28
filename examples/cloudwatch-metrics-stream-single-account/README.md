@@ -26,6 +26,8 @@ Minimum requirements:
 
 For quick testing, use this snippet on your terraform files
 
+### One region
+
 ```terraform
 terraform {
    required_providers {
@@ -45,9 +47,61 @@ module "cloudwatch_metrics_stream_single_account" {
    api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://app-staging.sysdigcloud.com"
    sysdig_aws_account_id = "xxxx-xxxx-xxxx" # this is draios-dev
-   monitoring_role_name = "TestTerraformSysdigCloudwatchIntegrationMonitoringRole"
+   monitoring_role_name = "TerraformSysdigMonitoringRole"
    create_new_role = true
    sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+```
+
+### Multiple regions
+
+```terraform
+terraform {
+   required_providers {
+      sysdig = {
+         source  = "sysdiglabs/sysdig"
+      }
+   }
+}
+
+provider "aws" {
+   alias  = "eu-west-1"
+   region = "eu-west-1"
+}
+
+module "cloudwatch_metrics_stream_single_account_eu_west_1" {
+   source = "sysdiglabs/terraform-aws-monitor-for-cloud/examples/cloudwatch-metrics-stream-single-account"
+
+   api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   sysdig_site = "https://app-staging.sysdigcloud.com"
+   sysdig_aws_account_id = "xxxx-xxxx-xxxx" # this is draios-dev
+   monitoring_role_name = "TerraformSysdigMonitoringRole"
+   create_new_role = true
+   sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+   providers = {
+      aws = aws.eu-west-1
+   }
+}
+
+provider "aws" {
+   alias  = "eu-central-1"
+   region = "eu-central-1"
+}
+
+module "cloudwatch_metrics_stream_single_account_eu_central_1" {
+   source = "sysdiglabs/terraform-aws-monitor-for-cloud/examples/cloudwatch-metrics-stream-single-account"
+
+   api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   sysdig_site = "https://app-staging.sysdigcloud.com"
+   sysdig_aws_account_id = "xxxx-xxxx-xxxx" # this is draios-dev
+   monitoring_role_name = "TerraformSysdigMonitoringRole"
+   create_new_role = true
+   sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+   providers = {
+      aws = aws.eu-central-1
+   }
 }
 ```
 

@@ -2,7 +2,7 @@
 # cloudwatch metric stream
 #-------------------------------------
 module "cloudwatch_metric_stream" {
-    source = "../../modules/cloud-watch-metric-stream"
+    source = "../../modules/cloud-watch-metrics-stream"
 
     api_key = var.api_key
     sysdig_site = var.sysdig_site

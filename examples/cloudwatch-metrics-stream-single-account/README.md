@@ -41,6 +41,11 @@ provider "aws" {
    region = "<AWS-REGION>; ex. us-east-1"
 }
 
+provider "sysdig" {
+   sysdig_monitor_url = "https://app-staging.sysdigcloud.com"
+   sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+
 module "cloudwatch_metrics_stream_single_account" {
    source = "sysdiglabs/terraform-aws-monitor-for-cloud/examples/cloudwatch-metrics-stream-single-account"
 
@@ -67,6 +72,11 @@ terraform {
 provider "aws" {
    alias  = "eu-west-1"
    region = "eu-west-1"
+}
+
+provider "sysdig" {
+   sysdig_monitor_url = "https://app-staging.sysdigcloud.com"
+   sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 }
 
 module "cloudwatch_metrics_stream_single_account_eu_west_1" {

@@ -57,3 +57,9 @@ resource "aws_cloudwatch_metric_stream" "sysdig_metris_stream_all_namespaces" {
     output_format = "opentelemetry0.7"
     ## add tags?
 }
+
+resource "sysdig_monitor_cloud_account" "cloud_account" {
+    cloud_provider = "AWS"
+    integration_type = "Metrics Streams"
+    account_id = var.sysdig_aws_account_id
+}

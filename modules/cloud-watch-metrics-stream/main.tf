@@ -55,11 +55,21 @@ resource "aws_cloudwatch_metric_stream" "sysdig_metris_stream_all_namespaces" {
     role_arn      = aws_iam_role.sysdig_cloudwatch_metric_stream_role.arn
     firehose_arn  = aws_kinesis_firehose_delivery_stream.sysdig_metric_kinesis_firehose.arn
     output_format = "opentelemetry0.7"
-    ## add tags?
+}
+
+resource "time_sleep" "wait_60_seconds" {
+    count = var.create_new_role ? 1 : 0
+    create_duration = "60s"
+
+    depends_on = [ aws_iam_role.sysdig_cloudwatch_integration_monitoring_role[0] ]
 }
 
 resource "sysdig_monitor_cloud_account" "cloud_account" {
+    count = var.create_new_role ? 1 : 0
     cloud_provider = "AWS"
     integration_type = "Metrics Streams"
-    account_id = var.sysdig_aws_account_id
+    account_id = "${data.aws_caller_identity.me.account_id}"
+    role_name = "${var.monitoring_role_name}-${data.aws_caller_identity.me.account_id}"
+
+    depends_on = [ time_sleep.wait_60_seconds[0] ]
 }

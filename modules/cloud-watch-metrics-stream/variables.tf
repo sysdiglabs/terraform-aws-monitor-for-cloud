@@ -20,6 +20,7 @@ variable "sysdig_site" {
 variable "sysdig_aws_account_id" {
     description = "Sysdig AWS accountId that will assume MonitoringRole to check status of CloudWatch metric stream"
     type        = string
+    default     = "default"
     validation {
         condition     = length(var.sysdig_aws_account_id) > 1
         error_message = "Sysdig AWS Account ID is required"
@@ -39,11 +40,13 @@ variable "monitoring_role_name" {
 variable "create_new_role" {
     description = "Whether the role above already exists or should be created from scratch"
     type        = bool
+    default     = true
 }
 
 variable "sysdig_external_id" {
     description = "Your Sysdig External ID which will be used when assuming roles in the account"
     type        = string
+    default     = "default"
     validation {
         condition     = length(var.sysdig_external_id) > 1
         error_message = "Sysdig external ID is required"

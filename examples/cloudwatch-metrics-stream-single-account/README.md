@@ -84,7 +84,7 @@ module "cloudwatch_metrics_stream_single_account_eu_west_1" {
 
    api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://app-staging.sysdigcloud.com"
-   sysdig_aws_account_id = "xxxx-xxxx-xxxx" # this is draios-dev
+   sysdig_aws_account_id = "xxxx-xxxx-xxxx"
    monitoring_role_name = "TerraformSysdigMonitoringRole"
    create_new_role = true
    sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -104,10 +104,6 @@ module "cloudwatch_metrics_stream_single_account_eu_central_1" {
 
    api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://app-staging.sysdigcloud.com"
-   sysdig_aws_account_id = "xxxx-xxxx-xxxx" # this is draios-dev
-   monitoring_role_name = "TerraformSysdigMonitoringRole"
-   create_new_role = true
-   sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
    providers = {
       aws = aws.eu-central-1
@@ -151,10 +147,10 @@ $ terraform apply
 |------|-------------|------|---------|:--------:|
 |<a name="api_key"></a> [api\_key](#input\_api\_key) | Your Sysdig API Key | `string` | n/a | yes |
 |<a name="sysdig_site"></a> [sysdig\_site](#input\_sysdig\_site) | Sysdig input endpoint | `string` | n/a | yes |
-|<a name="sysdig_aws_account_id"> </a> [sysdig\_aws\_account\_id](#input\_sysdig\_aws\_account\_id) | Sysdig AWS accountId that will assume MonitoringRole to check status of CloudWatch metric stream | `string` | n/a | yes |
-|<a name="monitoring_role_name"></a> [monitoring\_role\_name](#input\_monitoring\_role\_name) | Name for a role which will be used by Sysdig to monitor status of the stream | `string` | `"SysdigCloudwatchIntegrationMonitoringRole"`| yes |
-|<a name="create_new_role"></a> [create\_new\_role](#input\_create\_new\_role) | Whether the role above already exists or should be created from scratch | `bool` | n/a | no |
-|<a name="sysdig_external_id"></a> [sysdig\_external\_id](#input\_sysdig\_external\_id) | Your Sysdig External ID which will be used when assuming roles in the account | `string` | n/a | yes |
+|<a name="sysdig_aws_account_id"> </a> [sysdig\_aws\_account\_id](#input\_sysdig\_aws\_account\_id) | Sysdig AWS accountId that will assume MonitoringRole to check status of CloudWatch metric stream | `string` | `""` | no |
+|<a name="monitoring_role_name"></a> [monitoring\_role\_name](#input\_monitoring\_role\_name) | Name for a role which will be used by Sysdig to monitor status of the stream | `string` | `"SysdigCloudwatchIntegrationMonitoringRole"`| no |
+|<a name="create_new_role"></a> [create\_new\_role](#input\_create\_new\_role) | Whether the role above already exists or should be created from scratch | `bool` | false | no |
+|<a name="sysdig_external_id"></a> [sysdig\_external\_id](#input\_sysdig\_external\_id) | Your Sysdig External ID which will be used when assuming roles in the account | `string` | `""` | no |
 
 ## Outputs
 

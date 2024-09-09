@@ -52,3 +52,16 @@ variable "sysdig_external_id" {
         error_message = "Sysdig external ID is required"
     }
 }
+
+variable "secret_key" {
+    description = "value of the secret key"
+    type        = string
+    sensitive   = true
+    default = ""
+}
+
+variable "access_key_id" {
+    description = "value of the access key id"
+    type        = string
+    default = ""
+}

@@ -64,7 +64,7 @@ resource "time_sleep" "wait_60_seconds" {
     depends_on = [ aws_iam_role.sysdig_cloudwatch_integration_monitoring_role[0] ]
 }
 
-resource "sysdig_monitor_cloud_account" "cloud_account" {
+resource "sysdig_monitor_cloud_account" "assume_role_cloud_account" {
     count = var.create_new_role ? 1 : 0
     cloud_provider = "AWS"
     integration_type = "Metrics Streams"
@@ -72,4 +72,13 @@ resource "sysdig_monitor_cloud_account" "cloud_account" {
     role_name = "${var.monitoring_role_name}-${data.aws_caller_identity.me.account_id}"
 
     depends_on = [ time_sleep.wait_60_seconds[0] ]
+}
+
+resource "sysdig_monitor_cloud_account" "secret_key_cloud_account" {
+    count = var.create_new_role || var.secret_key == "" || var.access_key_id == "" ? 0 : 1
+    cloud_provider = "AWS"
+    integration_type = "Metrics Streams"
+    secret_key = var.secret_key
+    access_key_id = var.access_key_id
+    account_id = data.aws_caller_identity.me.account_id
 }

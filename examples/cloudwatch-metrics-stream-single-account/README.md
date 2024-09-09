@@ -26,7 +26,7 @@ Minimum requirements:
 
 For quick testing, use this snippet on your terraform files
 
-### One region
+### One region with role delegation authentication
 
 ```terraform
 terraform {
@@ -38,7 +38,7 @@ terraform {
 }
 
 provider "aws" {
-   region = "<AWS-REGION>; ex. us-east-1"
+   region = "<AWS-REGION>"
 }
 
 provider "sysdig" {
@@ -51,14 +51,44 @@ module "cloudwatch_metrics_stream_single_account" {
 
    api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://app-staging.sysdigcloud.com"
-   sysdig_aws_account_id = "xxxx-xxxx-xxxx" # this is draios-dev
+   sysdig_aws_account_id = "xxxx-xxxx-xxxx"
    monitoring_role_name = "TerraformSysdigMonitoringRole"
    create_new_role = true
    sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 }
 ```
 
-### Multiple regions
+### One region with secret key authentication
+
+```terraform
+terraform {
+   required_providers {
+      sysdig = {
+         source  = "sysdiglabs/sysdig"
+      }
+   }
+}
+
+provider "aws" {
+   region = "<AWS-REGION>"
+}
+
+provider "sysdig" {
+   sysdig_monitor_url = "https://app-staging.sysdigcloud.com"
+   sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+
+module "cloudwatch_metrics_stream_single_account" {
+   source = "sysdiglabs/terraform-aws-monitor-for-cloud/examples/cloudwatch-metrics-stream-single-account"
+
+   api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   sysdig_site = "https://app-staging.sysdigcloud.com"
+   secret_key = "Xxx5XX2xXx/Xxxx+xxXxXXxXxXxxXXxxxXXxXxXx"
+   access_key_id = "XXXXX33XXXX3XX3XXX7X"
+}
+```
+
+### Multiple regions with role delegation authentication
 
 ```terraform
 terraform {
@@ -88,6 +118,57 @@ module "cloudwatch_metrics_stream_single_account_eu_west_1" {
    monitoring_role_name = "TerraformSysdigMonitoringRole"
    create_new_role = true
    sysdig_external_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+   providers = {
+      aws = aws.eu-west-1
+   }
+}
+
+provider "aws" {
+   alias  = "eu-central-1"
+   region = "eu-central-1"
+}
+
+module "cloudwatch_metrics_stream_single_account_eu_central_1" {
+   source = "sysdiglabs/terraform-aws-monitor-for-cloud/examples/cloudwatch-metrics-stream-single-account"
+
+   api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   sysdig_site = "https://app-staging.sysdigcloud.com"
+
+   providers = {
+      aws = aws.eu-central-1
+   }
+}
+```
+
+### Multiple regions with secret key authentication
+
+```terraform
+terraform {
+   required_providers {
+      sysdig = {
+         source  = "sysdiglabs/sysdig"
+      }
+   }
+}
+
+provider "aws" {
+   alias  = "eu-west-1"
+   region = "eu-west-1"
+}
+
+provider "sysdig" {
+   sysdig_monitor_url = "https://app-staging.sysdigcloud.com"
+   sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+
+module "cloudwatch_metrics_stream_single_account_eu_west_1" {
+   source = "sysdiglabs/terraform-aws-monitor-for-cloud/examples/cloudwatch-metrics-stream-single-account"
+
+   api_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   sysdig_site = "https://app-staging.sysdigcloud.com"
+   secret_key = "Xxx5XX2xXx/Xxxx+xxXxXXxXxXxxXXxxxXXxXxXx"
+   access_key_id = "XXXXX33XXXX3XX3XXX7X"
 
    providers = {
       aws = aws.eu-west-1

@@ -33,6 +33,7 @@ terraform {
    required_providers {
       sysdig = {
          source  = "sysdiglabs/sysdig"
+         version = ">= 1.36.0"
       }
    }
 }
@@ -65,6 +66,7 @@ terraform {
    required_providers {
       sysdig = {
          source  = "sysdiglabs/sysdig"
+         version = ">= 1.36.0"
       }
    }
 }
@@ -95,6 +97,7 @@ terraform {
    required_providers {
       sysdig = {
          source  = "sysdiglabs/sysdig"
+         version = ">= 1.36.0"
       }
    }
 }
@@ -148,6 +151,7 @@ terraform {
    required_providers {
       sysdig = {
          source  = "sysdiglabs/sysdig"
+         version = ">= 1.36.0"
       }
    }
 }
@@ -206,8 +210,9 @@ $ terraform apply
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| <a name="requirement_sysdig"></a> [sysdig](#requirement\_sysdig) | >= 1.36.0 |
 
 
 ## Modules
@@ -229,9 +234,11 @@ $ terraform apply
 |<a name="api_key"></a> [api\_key](#input\_api\_key) | Your Sysdig API Key | `string` | n/a | yes |
 |<a name="sysdig_site"></a> [sysdig\_site](#input\_sysdig\_site) | Sysdig input endpoint | `string` | n/a | yes |
 |<a name="sysdig_aws_account_id"> </a> [sysdig\_aws\_account\_id](#input\_sysdig\_aws\_account\_id) | Sysdig AWS accountId that will assume MonitoringRole to check status of CloudWatch metric stream | `string` | `""` | no |
-|<a name="monitoring_role_name"></a> [monitoring\_role\_name](#input\_monitoring\_role\_name) | Name for a role which will be used by Sysdig to monitor status of the stream | `string` | `"SysdigCloudwatchIntegrationMonitoringRole"`| no |
+|<a name="monitoring_role_name"></a> [monitoring\_role\_name](#input\_monitoring\_role\_name) | The role name used for delegation over the customer resources towards the Sysdig AWS account. Only for AWS when the authentication mode is role delegation instead of secret key | `string` | `"SysdigCloudwatchIntegrationMonitoringRole"`| no |
 |<a name="create_new_role"></a> [create\_new\_role](#input\_create\_new\_role) | Whether the role above already exists or should be created from scratch | `bool` | false | no |
 |<a name="sysdig_external_id"></a> [sysdig\_external\_id](#input\_sysdig\_external\_id) | Your Sysdig External ID which will be used when assuming roles in the account | `string` | `""` | no |
+|<a name="secret_key"></a> [secret\_key](#input\_secret\_key) | The the secret key for a AWS connection. It must be provided along access_key_id when this auth mode is used | `string` | n/a | no |
+|<a name="access_key_id"></a> [access\_key\_id](#input\_access\_key\_id) | The ID for the access key that has the permissions into the Cloud Account. It must be provided along secret_key when this auth mode is used | `string` | n/a | no |
 
 ## Outputs
 

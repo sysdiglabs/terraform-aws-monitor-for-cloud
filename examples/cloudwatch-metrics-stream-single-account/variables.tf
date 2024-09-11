@@ -1,10 +1,10 @@
-variable "api_key" {
+variable "sysdig_monitor_api_token" {
     description = "Your Sysdig API Key"
     type        = string
     sensitive   = true
     validation {
-        condition     = length(var.api_key) > 1
-        error_message = "The api_key is required."
+        condition     = length(var.sysdig_monitor_api_token) > 1
+        error_message = "The sysdig_monitor_api_token is required."
     }
 }
 
@@ -64,4 +64,20 @@ variable "access_key_id" {
     description = "value of the access key id"
     type        = string
     default = ""
+}
+
+variable "include_filters" {
+    type = list(object({
+        namespace    = string
+        metric_names = list(string)
+    }))
+    default = []
+}
+
+variable "exclude_filters" {
+    type = list(object({
+        namespace    = string
+        metric_names = list(string)
+    }))
+    default = []
 }

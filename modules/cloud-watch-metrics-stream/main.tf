@@ -25,7 +25,7 @@ resource "aws_kinesis_firehose_delivery_stream" "sysdig_metric_kinesis_firehose"
     http_endpoint_configuration {
         url               = "${var.sysdig_site}/api/awsmetrics/v1/input"
         name              = "Event intake"
-        access_key        = var.api_key
+        access_key        = var.sysdig_monitor_api_token
         role_arn          = aws_iam_role.service_role.arn
         buffering_size    = 4
         buffering_interval = 60
@@ -55,6 +55,23 @@ resource "aws_cloudwatch_metric_stream" "sysdig_metris_stream_all_namespaces" {
     role_arn      = aws_iam_role.sysdig_cloudwatch_metric_stream_role.arn
     firehose_arn  = aws_kinesis_firehose_delivery_stream.sysdig_metric_kinesis_firehose.arn
     output_format = "opentelemetry0.7"
+
+
+    dynamic "include_filter" {
+        for_each = var.include_filters
+        content {
+            namespace = include_filter.value.namespace
+            metric_names = length(include_filter.value.metric_names) > 0 ? include_filter.value.metric_names : null
+        }
+    }
+
+    dynamic "exclude_filter" {
+        for_each = var.exclude_filters
+        content {
+            namespace = exclude_filter.value.namespace
+            metric_names = length(exclude_filter.value.metric_names) > 0 ? exclude_filter.value.metric_names : null
+        }
+    }
 }
 
 resource "time_sleep" "wait_60_seconds" {

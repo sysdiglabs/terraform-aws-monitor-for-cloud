@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "sysdig_cloudwatch_integration_monitoring_role_as
     statement {
         effect = "Allow"
         principals {
-            identifiers = ["arn:aws:iam::${data.aws_caller_identity.me.account_id}:root"]
+            identifiers = ["arn:aws:iam::${var.sysdig_aws_account_id}:root"]
             type        = "AWS"
         }
         actions = ["sts:AssumeRole"]
@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
             "cloudwatch:ListMetricStreams"
         ]
         resources = [
-            "arn:aws:cloudwatch:${data.aws_region.current.name}:${data.aws_caller_identity.me.account_id}:metric-stream/*"
+            "arn:aws:cloudwatch:*:${data.aws_caller_identity.me.account_id}:metric-stream/*"
         ]
     }
     
@@ -108,7 +108,7 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
             "firehose:DescribeDeliveryStream"
         ]
         resources = [
-            "arn:aws:firehose:${data.aws_region.current.name}:${data.aws_caller_identity.me.account_id}:deliverystream/*"
+            "arn:aws:firehose:*:${data.aws_caller_identity.me.account_id}:deliverystream/*"
         ]
     }
         

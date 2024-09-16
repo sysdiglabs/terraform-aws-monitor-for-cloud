@@ -4,11 +4,7 @@ locals {
 
 resource "aws_s3_bucket" "sysdig_curs3_bucket" {
     bucket = var.s3_bucket_name
-    acl    = "private"
-
-    object_lock_configuration {
-        object_lock_enabled = false
-    }
+    object_lock_enabled = false
 }
 
 resource "aws_s3_bucket_public_access_block" "sysdig_curs3_bucket_public_access_block" {
@@ -20,15 +16,17 @@ resource "aws_s3_bucket_public_access_block" "sysdig_curs3_bucket_public_access_
     restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_acl" "sysdig_curs3_bucket_acl" {
+    bucket = aws_s3_bucket.sysdig_curs3_bucket.id
+    acl    = "private"
+}
+
 resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
     bucket = aws_s3_bucket.sysdig_curs3_bucket.id
 
     policy = jsonencode({
-        Version = "2008-10-17"
-        Id      = "Policy1335892530063"
         Statement = [
         {
-            Sid    = "Stmt1335892150622"
             Effect = "Allow"
             Principal = {
                 Service = "billingreports.amazonaws.com"
@@ -43,7 +41,6 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
             }
         },
         {
-            Sid    = "Stmt1335892526596"
             Effect = "Allow"
             Principal = {
                 Service = "billingreports.amazonaws.com"
@@ -59,6 +56,8 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
         }
         ]
     })
+
+    depends_on = [ aws_s3_bucket.sysdig_curs3_bucket ]
 }
 
 resource "aws_cur_report_definition" "sysdig_created_cur" {
@@ -73,6 +72,18 @@ resource "aws_cur_report_definition" "sysdig_created_cur" {
     additional_artifacts       = ["ATHENA"]
     report_versioning          = "OVERWRITE_REPORT"
     refresh_closed_reports     = true
+
+    depends_on = [ aws_s3_bucket_policy.sysdig_cur_bucket_policy ]
+}
+
+resource "aws_glue_catalog_database" "aws_cur_database" {
+    name = "sysdig_aws_private_billing"
+    description = "AWS billing CUR database"
+    target_database {
+        database_name = "sysdig_aws_private_billing"
+        catalog_id = data.aws_caller_identity.current.account_id
+    }
+    depends_on = [ aws_cur_report_definition.sysdig_created_cur ]
 }
 
 resource "aws_athena_workgroup" "athena_workgroup" {
@@ -84,21 +95,16 @@ resource "aws_athena_workgroup" "athena_workgroup" {
             output_location = "s3://${var.s3_bucket_name}/${var.s3_athena_bucket_prefix}"
         }
     }
-}
 
-resource "aws_glue_catalog_database" "aws_cur_database" {
-    name = "sysdig_aws_private_billing"
-    description = "AWS billing CUR database"
-    catalog_id = data.aws_caller_identity.current.account_id
+    depends_on = [ aws_glue_catalog_database.aws_cur_database ]
 }
 
 resource "aws_glue_crawler" "cur_crawler" {
-    database_name = aws_glue_catalog_database.aws_cur_database.name
-    description = "A recurring crawler that keeps your CUR table in Athena up-to-date."
     name          = "AWSCURCrawler-sysdig_aws_private_billing"
+    description = "A recurring crawler that keeps your CUR table in Athena up-to-date."
     role          = aws_iam_role.cur_crawler_component_function.arn
-
-
+    database_name = aws_glue_catalog_database.aws_cur_database.name
+    
     s3_target {
         path = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
 
@@ -116,6 +122,8 @@ resource "aws_glue_crawler" "cur_crawler" {
         update_behavior = "UPDATE_IN_DATABASE"
         delete_behavior = "DELETE_FROM_DATABASE"
     }
+
+    depends_on = [ aws_glue_catalog_database.aws_cur_database, aws_iam_role.cur_crawler_component_function ]
 }
 
 data "archive_file" "lambda_crawler_zip" {

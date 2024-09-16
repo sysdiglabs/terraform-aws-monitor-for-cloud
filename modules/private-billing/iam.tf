@@ -2,7 +2,6 @@ resource "aws_iam_role" "cur_crawler_component_function" {
     name = "AWSCURCrawlerComponentFunction"
 
     assume_role_policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [
         {
             Effect = "Allow"
@@ -26,7 +25,6 @@ resource "aws_iam_role_policy" "cur_crawler_component_policy" {
     role   = aws_iam_role.cur_crawler_component_function.id
 
     policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [
             {
                 Effect = "Allow"
@@ -79,7 +77,6 @@ resource "aws_iam_role_policy" "cur_kms_decryption_policy" {
     role   = aws_iam_role.cur_crawler_component_function.id
 
     policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [
             {
                 Effect = "Allow"
@@ -96,7 +93,6 @@ resource "aws_iam_role" "cur_crawler_lambda_executor" {
     name = "AWSCURCrawlerLambdaExecutor"
 
     assume_role_policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [
             {
                 Effect = "Allow"
@@ -116,7 +112,6 @@ resource "aws_iam_role_policy" "cur_crawler_lambda_executor_policy" {
     role = aws_iam_role.cur_crawler_lambda_executor.id
 
     policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [
             {
                 Effect = "Allow"
@@ -130,7 +125,7 @@ resource "aws_iam_role_policy" "cur_crawler_lambda_executor_policy" {
             {
                 Effect = "Allow"
                 Action = [
-                    
+                    "glue:StartCrawler"
                 ]
                 Resource = "*"
             }
@@ -141,7 +136,6 @@ resource "aws_iam_role_policy" "cur_crawler_lambda_executor_policy" {
 resource "aws_iam_role" "s3_cur_lambda_executor" {
     name               = "AWSS3CURLambdaExecutor"
     assume_role_policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [
             {
                 Effect = "Allow"
@@ -160,7 +154,6 @@ resource "aws_iam_policy" "s3_cur_lambda_executor_policy" {
     name        = "AWSS3CURLambdaExecutor"
     description = "Policy for S3 CUR Lambda Executor"
     policy      = jsonencode({
-        Version = "2012-10-17"
         Statement = [
             {
                 Effect = "Allow"
@@ -191,7 +184,6 @@ resource "aws_iam_role" "private_billing_role" {
     name = var.sysdig_cost_access_role_name
 
     assume_role_policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [{
             Effect    = "Allow"
             Principal = {
@@ -212,7 +204,6 @@ resource "aws_iam_policy" "spot_feed_policy" {
 
     name   = "sysdig-spot-data-feed-access"
     policy = jsonencode({
-        Version = "2012-10-17"
         Statement = [{
             Sid    = "SpotDataAccess"
             Effect = "Allow"

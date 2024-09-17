@@ -1,4 +1,4 @@
-# Sysdig Monitor for Cloud in AWS
+# Sysdig Monitor for Cloud in AWS 
 Monitor repo for Terraform AWS modules in sysdiglabs
 
 For now this repository provides the CloudWatch Metrics Stream functionality

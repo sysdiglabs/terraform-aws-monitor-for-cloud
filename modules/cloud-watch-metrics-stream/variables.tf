@@ -40,7 +40,7 @@ variable "monitoring_role_name" {
 variable "create_new_role" {
     description = "Whether the role above already exists or should be created from scratch"
     type        = bool
-    default     = true
+    default     = false
 }
 
 variable "sysdig_external_id" {

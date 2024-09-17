@@ -1,0 +1,7 @@
+version: 2
+
+updates:
+  - package-ecosystem: "terraform"
+    directory: "modules/cloud-watch-metrics-stream"
+    schedule:
+      interval: "daily"

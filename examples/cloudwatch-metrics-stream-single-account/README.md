@@ -48,7 +48,7 @@ provider "sysdig" {
 }
 
 module "cloudwatch_metrics_stream_single_account" {
-   source = "sysdiglabs/monitor-for-cloud/aws//examples/cloudwatch-metrics-stream-single-account"
+   source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://<sysdig-endpoint>"
@@ -86,7 +86,7 @@ provider "sysdig" {
 }
 
 module "cloudwatch_metrics_stream_single_account" {
-   source = "sysdiglabs/monitor-for-cloud/aws//examples/cloudwatch-metrics-stream-single-account"
+   source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://<sysdig-endpoint>"
@@ -123,7 +123,7 @@ provider "sysdig" {
 }
 
 module "cloudwatch_metrics_stream_single_account_eu_west_1" {
-   source = "sysdiglabs/monitor-for-cloud/aws//examples/cloudwatch-metrics-stream-single-account"
+   source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://<sysdig-endpoint>"
@@ -149,7 +149,7 @@ provider "aws" {
 }
 
 module "cloudwatch_metrics_stream_single_account_eu_central_1" {
-   source = "sysdiglabs/monitor-for-cloud/aws//examples/cloudwatch-metrics-stream-single-account"
+   source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://<sysdig-endpoint>"
@@ -182,7 +182,7 @@ provider "sysdig" {
 }
 
 module "cloudwatch_metrics_stream_single_account_eu_west_1" {
-   source = "sysdiglabs/monitor-for-cloud/aws//examples/cloudwatch-metrics-stream-single-account"
+   source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://<sysdig-endpoint>"
@@ -206,7 +206,7 @@ provider "aws" {
 }
 
 module "cloudwatch_metrics_stream_single_account_eu_central_1" {
-   source = "sysdiglabs/monitor-for-cloud/aws//examples/cloudwatch-metrics-stream-single-account"
+   source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
    sysdig_site = "https://<sysdig-endpoint>"

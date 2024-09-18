@@ -8,11 +8,11 @@ variable "sysdig_monitor_api_token" {
     }
 }
 
-variable "sysdig_site" {
+variable "sysdig_monitor_url" {
     description = "Sysdig input endpoint"
     type        = string
     validation {
-        condition     = length(var.sysdig_site) > 1
+        condition     = length(var.sysdig_monitor_url) > 1
         error_message = "Sysdig input endpoint is required."
     }
 }

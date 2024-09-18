@@ -23,7 +23,7 @@ resource "aws_kinesis_firehose_delivery_stream" "sysdig_metric_kinesis_firehose"
     destination = "http_endpoint"
 
     http_endpoint_configuration {
-        url               = "${var.sysdig_site}/api/awsmetrics/v1/input"
+        url               = "${var.sysdig_monitor_url}/api/awsmetrics/v1/input"
         name              = "Event intake"
         access_key        = var.sysdig_monitor_api_token
         role_arn          = aws_iam_role.service_role.arn

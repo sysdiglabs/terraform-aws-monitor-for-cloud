@@ -22,7 +22,7 @@ curl --location 'https://app.sysdigcloud.com/api/v2/providers/info/awsCloudInfor
 "awsSystemAccountId":"123456789123"}
 ```
 
-The `sysdig_monitor_url`, `sysdig_aws_account_id`, and `sysdig_external_id` are all needed to configure the AWS Cloudwatch integration with Sysdig Monitor.
+The `sysdig_aws_account_id`, and `sysdig_external_id` are all needed to configure the AWS Cloudwatch integration with Sysdig Monitor when using role delegation(`create_new_role = true`).
 
 ## Usage
 

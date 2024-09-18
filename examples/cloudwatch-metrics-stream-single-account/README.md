@@ -1,31 +1,30 @@
-# Sysdig Monitor for Cloud in AWS<br/>[ Example :: CloudWatch Metrics Stream Single Account ]
+# AWS Cloudwatch Metrics Integration with Sysdig Monitor<br/>[ Example :: CloudWatch Metrics Stream Single Account ]
 
-Deploy CloudWatch Metrics Stream feature in a single AWS account.<br/>
-All the required resources and workloads will be run under the same account.
-
+Deploy AWS Cloudwatch Metrics Integration with Sysdig Monitor for a single AWS account.<br/>
 
 ### Notice
-* **Resource creation inventory** Find all the resources created by Sysdig examples in the resource-group `sysdig-monitor-for-cloud` (AWS Resource Group & Tag Editor) <br/><br/>
-* **Deployment cost** This example will create resources that cost money.<br/>Run `terraform destroy` when you don't need them anymore
+The following examples create AWS resources that incur charges which are not part of your Sysdig subscription.
 
 ![diagram](https://raw.githubusercontent.com/sysdiglabs/terraform-aws-monitor-for-cloud/main/examples/cloudwatch-metrics-stream-single-account/diagram.png)
 
 ## Prerequisites
 
-Minimum requirements:
+### Getting your `sysdig_aws_account_id` and `sysdig_external_id`
+In order to establish the cross-account IAM role that Sysdig Monitor uses to connect with your AWS Metric Stream, it is necessary to fetch the `sysdig_external_id` and `sysdig_aws_account_id` associated with your Sysdig instance. This is the Sysdig AWS account ID **NOT** your AWS account ID. An API has been developed to make this process easier. You will need to use the correct API endpoint depending on your [sysdig_monitor_url](https://docs.sysdig.com/en/docs/administration/saas-regions-and-ip-ranges). For example, the following example uses the **US East** endpoint.
 
-1. Configure [Terraform **AWS** Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
-2. Monitor requirements, as input variable value
-    ```
-    sysdig_monitor_api_token=<Sysdig API Key>
-    sysdig_aws_account_id=<Sysdig AWS accountId>
-    sysdig_external_id=<Sysdig external ID>
-    ```
 
+```bash
+curl --location 'https://app.sysdigcloud.com/api/v2/providers/info/awsCloudInformation' \
+--header 'Content-Type: application/json' \
+--header "Authorization: Bearer $SYSDIG_MONITOR_API_TOKEN"
+{"apiToken":"11111111-1111-1111-1111-111111111111",
+"externalId":"11111111-2222-3333-4444-555555555555",
+"awsSystemAccountId":"123456789123"}
+```
+
+The `sysdig_aws_account_id`, and `sysdig_external_id` are all needed to configure the AWS Cloudwatch integration with Sysdig Monitor when using role delegation(`create_new_role = true`).
 
 ## Usage
-
-For quick testing, use this snippet on your terraform files
 
 ### One region with role delegation authentication
 
@@ -51,7 +50,7 @@ module "cloudwatch_metrics_stream_single_account" {
    source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-   sysdig_site = "https://<sysdig-endpoint>"
+   sysdig_monitor_url = "https://<sysdig-endpoint>"
    sysdig_aws_account_id = "xxxx-xxxx-xxxx"
    monitoring_role_name = "TerraformSysdigMonitoringRole"
    create_new_role = true
@@ -89,7 +88,7 @@ module "cloudwatch_metrics_stream_single_account" {
    source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-   sysdig_site = "https://<sysdig-endpoint>"
+   sysdig_monitor_url = "https://<sysdig-endpoint>"
    secret_key = "Xxx5XX2xXx/Xxxx+xxXxXXxXxXxxXXxxxXXxXxXx"
    access_key_id = "XXXXX33XXXX3XX3XXX7X"
    exclude_filters = [ 
@@ -126,7 +125,7 @@ module "cloudwatch_metrics_stream_single_account_eu_west_1" {
    source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-   sysdig_site = "https://<sysdig-endpoint>"
+   sysdig_monitor_url = "https://<sysdig-endpoint>"
    sysdig_aws_account_id = "xxxx-xxxx-xxxx"
    monitoring_role_name = "TerraformSysdigMonitoringRole"
    create_new_role = true
@@ -152,7 +151,7 @@ module "cloudwatch_metrics_stream_single_account_eu_central_1" {
    source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-   sysdig_site = "https://<sysdig-endpoint>"
+   sysdig_monitor_url = "https://<sysdig-endpoint>"
 
    providers = {
       aws = aws.eu-central-1
@@ -185,7 +184,7 @@ module "cloudwatch_metrics_stream_single_account_eu_west_1" {
    source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-   sysdig_site = "https://<sysdig-endpoint>"
+   sysdig_monitor_url = "https://<sysdig-endpoint>"
    secret_key = "Xxx5XX2xXx/Xxxx+xxXxXXxXxXxxXXxxxXXxXxXx"
    access_key_id = "XXXXX33XXXX3XX3XXX7X"
    exclude_filters = [ 
@@ -209,7 +208,7 @@ module "cloudwatch_metrics_stream_single_account_eu_central_1" {
    source = "sysdiglabs/monitor-for-cloud/aws//modules/cloud-watch-metrics-stream"
 
    sysdig_monitor_api_token = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-   sysdig_site = "https://<sysdig-endpoint>"
+   sysdig_monitor_url = "https://<sysdig-endpoint>"
 
    providers = {
       aws = aws.eu-central-1
@@ -248,7 +247,7 @@ $ terraform apply
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 |<a name="sysdig_monitor_api_token"></a> [sysdig\_monitor\_api\_token](#input\_sysdig\_monitor\_api\_token) | Your Sysdig API Key | `string` | n/a | yes |
-|<a name="sysdig_site"></a> [sysdig\_site](#input\_sysdig\_site) | Sysdig input endpoint | `string` | n/a | yes |
+|<a name="sysdig_monitor_url"></a> [sysdig\_site](#input\_sysdig\_site) | Sysdig input endpoint | `string` | n/a | yes |
 |<a name="sysdig_aws_account_id"> </a> [sysdig\_aws\_account\_id](#input\_sysdig\_aws\_account\_id) | Sysdig AWS accountId that will assume MonitoringRole to check status of CloudWatch metric stream | `string` | `""` | no |
 |<a name="monitoring_role_name"></a> [monitoring\_role\_name](#input\_monitoring\_role\_name) | The role name used for delegation over the customer resources towards the Sysdig AWS account. Only for AWS when the authentication mode is role delegation instead of secret key | `string` | `"SysdigCloudwatchIntegrationMonitoringRole"`| no |
 |<a name="create_new_role"></a> [create\_new\_role](#input\_create\_new\_role) | Whether the role above already exists or should be created from scratch | `bool` | false | no |

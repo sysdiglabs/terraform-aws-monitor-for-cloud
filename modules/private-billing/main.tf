@@ -1,7 +1,3 @@
-locals {
-    has_spot_feed_bucket_name = var.spot_data_feed_bucket_name != ""
-}
-
 resource "aws_s3_bucket" "sysdig_curs3_bucket" {
     bucket = var.s3_bucket_name
     object_lock_enabled = false
@@ -149,11 +145,21 @@ resource "aws_lambda_function" "cur_initializer" {
     }
 }
 
-// This resource is used to trigger the lambda function but im not sure if it is going to work because in Cloudformation it is using Custom::AWSStartCURCrawler
-resource "aws_lambda_invocation" "start_cur_crawler" {
-    function_name = aws_lambda_function.cur_initializer.function_name
-    input         = jsonencode({})
-    depends_on    = [aws_lambda_function.cur_initializer]
+resource "null_resource" "run_cur_initializer" {
+    provisioner "local-exec" {
+        command = <<-EOT
+        aws lambda invoke \
+            --function-name ${aws_lambda_function.cur_initializer.function_name} \
+            --payload '{
+            "RequestType": "Create"
+            }' \
+            response.json
+        EOT
+    
+        when = create
+    }
+
+    depends_on = [aws_lambda_function.cur_initializer]
 }
 
 resource "aws_lambda_permission" "s3_cur_event_lambda" {
@@ -189,14 +195,16 @@ resource "null_resource" "put_s3_cur_notification" {
             --function-name ${aws_lambda_function.s3_cur_notification.function_name} \
             --payload '{
             "RequestType": "Create",
-                "ResourceProperties": {
-                    "BucketName": "${var.s3_bucket_name}",
-                    "TargetLambdaArn": "${aws_lambda_function.cur_initializer.arn}",
-                    "ReportKey": "${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
-                }
+            "ResourceProperties": {
+                "BucketName": "${var.s3_bucket_name}",
+                "TargetLambdaArn": "${aws_lambda_function.cur_initializer.arn}",
+                "ReportKey": "${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
+            }
             }' \
             response.json
         EOT
+
+        when = create
     }
 
     triggers = {
@@ -204,6 +212,8 @@ resource "null_resource" "put_s3_cur_notification" {
         target_lambda  = aws_lambda_function.cur_initializer.arn
         report_key     = "${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
     }
+
+    depends_on = [aws_lambda_function.s3_cur_notification]
 }
 
 resource "aws_glue_catalog_table" "cur_report_status_table" {

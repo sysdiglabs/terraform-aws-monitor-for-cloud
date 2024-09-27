@@ -47,7 +47,7 @@ variable "spot_data_feed_bucket_name" {
 variable "sysdig_cost_access_role_name" {
     description = "Name of role which will be granted permissions to access cost and billing data"
     type        = string
-    default     = "SysdigBillingIntegrationMonitoringRole"
+    default     = "SysdigCloudwatchIntegrationMonitoringRole"
 }
 
 variable "create_new_role" {

@@ -237,3 +237,20 @@ resource "aws_glue_catalog_table" "cur_report_status_table" {
         }
     }
 }
+
+resource "time_sleep" "wait_60_seconds" {
+    count = var.create_new_role ? 1 : 0
+    create_duration = "60s"
+
+    depends_on = [ aws_iam_role.private_billing_role[0] ]
+}
+
+resource "sysdig_monitor_cloud_account" "assume_role_cloud_account" {
+    count = var.create_new_role ? 1 : 0
+    cloud_provider = "AWS"
+    integration_type = "Cost"
+    account_id = "${data.aws_caller_identity.me.account_id}"
+    role_name = "${var.monitoring_role_name}-${data.aws_caller_identity.me.account_id}"
+
+    depends_on = [ time_sleep.wait_60_seconds[0] ]
+}

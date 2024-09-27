@@ -138,7 +138,7 @@ data "aws_iam_policy_document" "s3_cur_lambda_executor_policy" {
         ]
     }
 }
-//wip
+
 data "aws_iam_policy_document" "private_billing_assume_role" {
     statement {
         effect = "Allow"

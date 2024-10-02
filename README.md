@@ -1,15 +1,17 @@
 # Sysdig Monitor for Cloud in AWS
 Monitor repo for Terraform AWS modules in sysdiglabs
 
-For now this repository provides the CloudWatch Metrics Stream functionality
+This repository provides the CloudWatch Metrics Stream and Private Billing functionalities
 
 * **[CloudWatch Metrics Stream](https://docs.sysdig.com/en/docs/sysdig-monitor/integrations/cloud-accounts/connect-aws-account/cloudwatch-monitoring/)**:  You can collect both general metadata and various types of CloudWatch metrics from your AWS environment for this purpose <br/>
+* **[Private Billing](https://docs.sysdig.com/en/docs/sysdig-monitor/integrations/cloud-accounts/connect-aws-account/cost-and-usage-reporting/)**:  TODO Description <br/>
 
 ## Usage
 
-There are several ways to deploy Secure for Cloud in you AWS infrastructure,
+There are several ways to deploy Monitor for Cloud in you AWS infrastructure,
 - **[`/examples`](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples)** for the most common scenarios
   - [CloudWatch Metrics Stream Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/cloudwatch-metrics-stream-single-account/)
+  - [Private Billing Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/private-billing-single-account/)
 
 <br/>
 

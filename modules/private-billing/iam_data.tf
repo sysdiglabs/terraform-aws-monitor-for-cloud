@@ -115,7 +115,7 @@ data "aws_iam_policy_document" "s3_cur_lambda_executor_assume_role" {
     }
 }
 
-data "aws_iam_policy_document" "s3_cur_lambda_executor_policy" {
+data "aws_iam_policy_document" "s3_cur_lambda_executor_policy_document" {
     statement {
         effect = "Allow"
         actions = [
@@ -124,7 +124,7 @@ data "aws_iam_policy_document" "s3_cur_lambda_executor_policy" {
             "logs:PutLogEvents"
         ]
         resources = [
-            "arn:${data.aws_partition.current}:logs:*:*:*"
+            "arn:${data.aws_partition.current.partition}:logs:*:*:*"
         ]
     }
 
@@ -134,7 +134,7 @@ data "aws_iam_policy_document" "s3_cur_lambda_executor_policy" {
             "s3:PutBucketNotification"
         ]
         resources = [
-            "arn:${data.aws_partition.current}:s3:::${var.s3_bucket_name}"
+            "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket_name}"
         ]
     }
 }
@@ -155,7 +155,7 @@ data "aws_iam_policy_document" "private_billing_assume_role" {
     }
 }
 
-data "aws_iam_policy_document" "spot_feed_policy" {
+data "aws_iam_policy_document" "spot_feed_policy_document" {
     statement {
         effect = "Allow"
         actions = [

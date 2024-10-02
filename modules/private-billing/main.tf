@@ -31,8 +31,8 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
             Resource = aws_s3_bucket.sysdig_curs3_bucket.arn
             Condition = {
                 StringEquals = {
-                    "aws:SourceArn"    = "arn:aws:cur:${var.s3_region}:${data.aws_caller_identity.current.account_id}:definition/*"
-                    "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+                    "aws:SourceArn"    = "arn:aws:cur:${var.s3_region}:${data.aws_caller_identity.me.account_id}:definition/*"
+                    "aws:SourceAccount" = data.aws_caller_identity.me.account_id
                 }
             }
         },
@@ -45,8 +45,8 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
             Resource = "arn:aws:s3:::${var.s3_bucket_name}/*"
             Condition = {
                 StringEquals = {
-                    "aws:SourceArn"    = "arn:aws:cur:${var.s3_region}:${data.aws_caller_identity.current.account_id}:definition/*"
-                    "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+                    "aws:SourceArn"    = "arn:aws:cur:${var.s3_region}:${data.aws_caller_identity.me.account_id}:definition/*"
+                    "aws:SourceAccount" = data.aws_caller_identity.me.account_id
                 }
             }
         }
@@ -77,7 +77,7 @@ resource "aws_glue_catalog_database" "aws_cur_database" {
     description = "AWS billing CUR database"
     target_database {
         database_name = "sysdig_aws_private_billing"
-        catalog_id = data.aws_caller_identity.current.account_id
+        catalog_id = data.aws_caller_identity.me.account_id
     }
     depends_on = [ aws_cur_report_definition.sysdig_created_cur ]
 }
@@ -168,7 +168,7 @@ resource "aws_lambda_permission" "s3_cur_event_lambda" {
     function_name = aws_lambda_function.cur_initializer.function_name
     principal     = "s3.amazonaws.com"
     source_account = var.sysdig_aws_account_id
-    source_arn    = "arn:${data.aws_partition.current}:s3:::${var.s3_bucket_name}"
+    source_arn    = "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket_name}"
 }
 
 data "archive_file" "lambda_notification_zip" {
@@ -218,8 +218,8 @@ resource "null_resource" "put_s3_cur_notification" {
 
 resource "aws_glue_catalog_table" "cur_report_status_table" {
     name          = "sysdig_private_billing_cost_and_usage_data_status"
-    database_name = aws_glue_catalog_database.cur_database.name
-    catalog_id    = data.aws_caller_identity.current.account_id
+    database_name = aws_glue_catalog_database.aws_cur_database.name
+    catalog_id    = data.aws_caller_identity.me.account_id
     table_type    = "EXTERNAL_TABLE"
 
     storage_descriptor {
@@ -250,7 +250,7 @@ resource "sysdig_monitor_cloud_account" "assume_role_cloud_account" {
     cloud_provider = "AWS"
     integration_type = "Cost"
     account_id = "${data.aws_caller_identity.me.account_id}"
-    role_name = "${var.monitoring_role_name}-${data.aws_caller_identity.me.account_id}"
+    role_name = "${var.sysdig_cost_access_role_name}-${data.aws_caller_identity.me.account_id}"
 
     depends_on = [ time_sleep.wait_60_seconds[0] ]
 }

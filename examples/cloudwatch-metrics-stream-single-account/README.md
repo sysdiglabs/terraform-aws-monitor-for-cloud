@@ -232,7 +232,7 @@ $ terraform apply
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
-| <a name="requirement_sysdig"></a> [sysdig](#requirement\_sysdig) | >= 1.36.0 |
+| <a name="requirement_sysdig"></a> [sysdig](#requirement\_sysdig) | >= 1.37.0 |
 
 
 ## Modules

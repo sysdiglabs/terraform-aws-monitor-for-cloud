@@ -6,14 +6,14 @@
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.2 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
-| <a name="requirement_sysdig"></a> [sysdig](#requirement\_sysdig) | >= 1.36.0 |
+| <a name="requirement_sysdig"></a> [sysdig](#requirement\_sysdig) | >= 1.37.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
-| <a name="provider_sysdig"></a> [sysdig](#provider\_sysdig) | >= 1.36.0 |
+| <a name="provider_sysdig"></a> [sysdig](#provider\_sysdig) | >= 1.37.0 |
 
 ## Modules
 

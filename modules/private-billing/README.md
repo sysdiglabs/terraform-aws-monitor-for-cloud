@@ -25,7 +25,6 @@ No modules.
 |------|------|
 | [aws_s3_bucket.sysdig_curs3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_public_access_block.sysdig_curs3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_acl.sysdig_curs3_bucket_acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_policy.sysdig_cur_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_cur_report_definition.sysdig_created_cur](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cur_report_definition) | resource |
 | [aws_glue_catalog_database.aws_cur_database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_catalog_database) | resource |
@@ -62,11 +61,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-|<a name="s3_region"></a> [s3\_region](#input\_s3\_region) | Region of S3 bucket | `string` | `us-east-1` | yes |
 |<a name="s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | Name of S3 bucket where Cost and Usage data will be generated | `string` | ` ` | yes |
 |<a name="s3_bucket_prefix"></a> [s3\_bucket\_prefix](#input\_s3\_bucket\_prefix) | Prefix of CUR files inside S3 bucket | `string` | `billing-data` | yes |
 |<a name="s3_athena_bucket_prefix"></a> [s3\_athena\_bucket\_prefix](#input\_s3\_athena\_bucket\_prefix) | Prefix of Athena results inside S3 bucket | `string` | `athena-cur-query-results` | yes |
-|<a name="spot_data_feed_bucket_name"></a> [spot\_data\_feed\_bucket\_name](#input\_spot\_data\_feed\_bucket_name) | The bucket where the spot data feed is sent from the “Setting up the Spot Data feed” step | `string` | ` ` | yes |
 |<a name="sysdig_cost_access_role_name"></a> [sysdig\_cost\_access\_role\_name](#input\_sysdig\_cost\_access\_role_name) | Name of role which will be granted permissions to access cost and billing data | `string` | `SysdigBillingIntegrationMonitoringRole` | yes |
 |<a name="create_new_role"></a> [create\_new\_role](#input\_create\_new\_role) | Whether the role above already exists or should be created from scratch | `boolean` | false | yes |
 |<a name="sysdig_aws_account_id"></a> [sysdig\_aws\_account\_id](#input\_sysdig\_aws\_account\_id) | AWS account used by Sysdig | `string` | ` ` | yes |

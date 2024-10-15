@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const response = require('./cfn-response');
+const response = require('cfn-response');
 exports.handler = function(event, context, callback) {
     const s3 = new AWS.S3();
     const putConfigRequest = function(notificationConfiguration) {

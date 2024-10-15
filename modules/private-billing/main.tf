@@ -12,11 +12,6 @@ resource "aws_s3_bucket_public_access_block" "sysdig_curs3_bucket_public_access_
     restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_acl" "sysdig_curs3_bucket_acl" {
-    bucket = aws_s3_bucket.sysdig_curs3_bucket.id
-    acl    = "private"
-}
-
 resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
     bucket = aws_s3_bucket.sysdig_curs3_bucket.id
 
@@ -27,12 +22,16 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
             Principal = {
                 Service = "billingreports.amazonaws.com"
             }
-            Action   = ["s3:GetBucketAcl", "s3:GetBucketPolicy"]
-            Resource = aws_s3_bucket.sysdig_curs3_bucket.arn
+            Action   = [
+                "s3:GetBucketLocation", 
+                "s3:GetBucketAcl", 
+                "s3:GetBucketPolicy"
+            ]
+            Resource = "arn:aws:s3:::${var.s3_bucket_name}"
             Condition = {
                 StringEquals = {
-                    "aws:SourceArn"    = "arn:aws:cur:${var.s3_region}:${data.aws_caller_identity.me.account_id}:definition/*"
-                    "aws:SourceAccount" = data.aws_caller_identity.me.account_id
+                    "aws:SourceArn"    = "arn:aws:cur:us-east-1:${data.aws_caller_identity.me.account_id}:definition/*"
+                    "aws:SourceAccount" = "${data.aws_caller_identity.me.account_id}"
                 }
             }
         },
@@ -45,8 +44,8 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
             Resource = "arn:aws:s3:::${var.s3_bucket_name}/*"
             Condition = {
                 StringEquals = {
-                    "aws:SourceArn"    = "arn:aws:cur:${var.s3_region}:${data.aws_caller_identity.me.account_id}:definition/*"
-                    "aws:SourceAccount" = data.aws_caller_identity.me.account_id
+                    "aws:SourceArn"    = "arn:aws:cur:us-east-1:${data.aws_caller_identity.me.account_id}:definition/*"
+                    "aws:SourceAccount" = "${data.aws_caller_identity.me.account_id}"
                 }
             }
         }
@@ -57,13 +56,14 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
 }
 
 resource "aws_cur_report_definition" "sysdig_created_cur" {
-    report_name         = "sysdig_aws_private_billing"
+    provider            = aws.us-east-1
+    report_name         = "test_sysdig_aws_private_billing"
     time_unit           = "HOURLY"
     format              = "Parquet"
     compression         = "Parquet"
     s3_bucket           = var.s3_bucket_name
     s3_prefix           = var.s3_bucket_prefix
-    s3_region           = var.s3_region
+    s3_region           = "us-east-1"
     additional_schema_elements = ["RESOURCES"]
     additional_artifacts       = ["ATHENA"]
     report_versioning          = "OVERWRITE_REPORT"
@@ -73,12 +73,8 @@ resource "aws_cur_report_definition" "sysdig_created_cur" {
 }
 
 resource "aws_glue_catalog_database" "aws_cur_database" {
-    name = "sysdig_aws_private_billing"
-    description = "AWS billing CUR database"
-    target_database {
-        database_name = "sysdig_aws_private_billing"
-        catalog_id = data.aws_caller_identity.me.account_id
-    }
+    name = "test_sysdig_aws_private_billing"
+    catalog_id = data.aws_caller_identity.me.account_id
     depends_on = [ aws_cur_report_definition.sysdig_created_cur ]
 }
 
@@ -96,7 +92,7 @@ resource "aws_athena_workgroup" "athena_workgroup" {
 }
 
 resource "aws_glue_crawler" "cur_crawler" {
-    name          = "AWSCURCrawler-sysdig_aws_private_billing"
+    name          = "Test-AWSCURCrawler-sysdig_aws_private_billing"
     description = "A recurring crawler that keeps your CUR table in Athena up-to-date."
     role          = aws_iam_role.cur_crawler_component_function.arn
     database_name = aws_glue_catalog_database.aws_cur_database.name
@@ -129,7 +125,7 @@ data "archive_file" "lambda_crawler_zip" {
 }
 
 resource "aws_lambda_function" "cur_initializer" {
-    function_name = "AWSCURInitializer"
+    function_name = "AWSCURInitializer-${data.aws_caller_identity.me.account_id}"
     handler       = "index.handler"
     runtime       = "nodejs16.x"
     filename      = data.archive_file.lambda_crawler_zip.output_path
@@ -150,6 +146,8 @@ resource "null_resource" "run_cur_initializer" {
         command = <<-EOT
         aws lambda invoke \
             --function-name ${aws_lambda_function.cur_initializer.function_name} \
+            --region ${data.aws_region.current.name} \
+            --cli-binary-format raw-in-base64-out \
             --payload '{
             "RequestType": "Create"
             }' \
@@ -178,7 +176,7 @@ data "archive_file" "lambda_notification_zip" {
 }
 
 resource "aws_lambda_function" "s3_cur_notification" {
-    function_name = "s3_cur_notification"
+    function_name = "s3_cur_notification-${data.aws_caller_identity.me.account_id}"
     handler       = "index.handler"
     runtime       = "nodejs16.x"
     filename      = data.archive_file.lambda_notification_zip.output_path
@@ -193,6 +191,8 @@ resource "null_resource" "put_s3_cur_notification" {
         command = <<-EOT
         aws lambda invoke \
             --function-name ${aws_lambda_function.s3_cur_notification.function_name} \
+            --region ${data.aws_region.current.name} \
+            --cli-binary-format raw-in-base64-out \
             --payload '{
             "RequestType": "Create",
             "ResourceProperties": {
@@ -236,6 +236,8 @@ resource "aws_glue_catalog_table" "cur_report_status_table" {
             type = "string"
         }
     }
+
+    depends_on = [ aws_glue_catalog_database.aws_cur_database ]
 }
 
 resource "time_sleep" "wait_60_seconds" {

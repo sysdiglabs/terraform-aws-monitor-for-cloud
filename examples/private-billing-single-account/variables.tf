@@ -1,13 +1,3 @@
-variable "s3_region" {
-    description = "Region of S3 bucket"
-    type        = string
-    default     = "us-east-1"
-    validation {
-        condition     = length(var.s3_region) > 0
-        error_message = "The region is required."
-    }
-}
-
 variable "s3_bucket_name" {
     description = "Name of S3 bucket where Cost and Usage data will be generated"
     type        = string
@@ -36,12 +26,6 @@ variable "s3_athena_bucket_prefix" {
         condition     = length(var.s3_athena_bucket_prefix) > 0
         error_message = "The s3_athena_bucket_prefix is required."
     }
-}
-
-variable "spot_data_feed_bucket_name" {
-    description = "The bucket where the spot data feed is sent from the “Setting up the Spot Data feed” step"
-    type        = string
-    default     = ""
 }
 
 variable "sysdig_cost_access_role_name" {

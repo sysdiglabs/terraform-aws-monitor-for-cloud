@@ -1,6 +1,7 @@
 resource "aws_cloudwatch_log_group" "sysdig_stream_logs" {
     name = "sysdig-cloudwatch-metric-stream-${data.aws_region.current.name}-${data.aws_caller_identity.me.account_id}"
     retention_in_days = 14
+    tags = var.tags
 }
 
 resource "aws_cloudwatch_log_stream" "http_log_stream" {
@@ -15,7 +16,7 @@ resource "aws_cloudwatch_log_stream" "s3_backup" {
 
 resource "aws_s3_bucket" "sysdig_stream_backup_bucket" {
     bucket = "sysdig-backup-bucket-${data.aws_region.current.name}-${data.aws_caller_identity.me.account_id}"
-    ## add tags?
+    tags = var.tags
 }
 
 resource "aws_kinesis_firehose_delivery_stream" "sysdig_metric_kinesis_firehose" {
@@ -48,6 +49,8 @@ resource "aws_kinesis_firehose_delivery_stream" "sysdig_metric_kinesis_firehose"
             compression_format  = "GZIP"
         }
     }
+
+    tags = var.tags
 }
 
 resource "aws_cloudwatch_metric_stream" "sysdig_metris_stream_all_namespaces" {
@@ -72,6 +75,8 @@ resource "aws_cloudwatch_metric_stream" "sysdig_metris_stream_all_namespaces" {
             metric_names = length(exclude_filter.value.metric_names) > 0 ? exclude_filter.value.metric_names : null
         }
     }
+
+    tags = var.tags
 }
 
 resource "time_sleep" "wait_60_seconds" {

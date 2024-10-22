@@ -55,6 +55,7 @@ No modules.
 |<a name="access_key_id"></a> [access\_key\_id](#input\_access\_key\_id) | The ID for the access key that has the permissions into the Cloud Account. It must be provided along secret_key when this auth mode is used | `string` | n/a | no |
 |<a name="include_filters"></a> [include\_filters](#input\_include\_filters) | List of inclusive metric filters. If you specify this parameter, the stream sends only the conditional metric names from the metric namespaces that you specify here. If you don't specify metric names or provide empty metric names whole metric namespace is included. Conflicts with `exclude_filter` | `Object` | n/a | no |
 |<a name="exclude_filters"></a> [exclude\_filters](#input\_exclude\_filters) | List of exclusive metric filters. If you specify this parameter, the stream sends metrics from all metric namespaces except for the namespaces and the conditional metric names that you specify here. If you don't specify metric names or provide empty metric names whole metric namespace is excluded. Conflicts with `include_filter` | `Object` | n/a | no |
+|<a name="tags"></a> [tags](#input\_tags) | Map of tags to apply to resources | `map string` | n/a | no |
 
 ## Outputs
 

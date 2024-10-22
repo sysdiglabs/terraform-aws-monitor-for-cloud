@@ -6,6 +6,7 @@ resource "aws_iam_role" "service_role" {
         name   = "sysdig_stream_s3_policy"
         policy = data.aws_iam_policy_document.iam_role_task_policy_service_role.json
     }
+    tags = var.tags
 }
 
 resource "aws_iam_role" "sysdig_cloudwatch_metric_stream_role" {
@@ -17,6 +18,7 @@ resource "aws_iam_role" "sysdig_cloudwatch_metric_stream_role" {
         name   = "sysdig_stream_firehose_policy"
         policy = data.aws_iam_policy_document.iam_role_task_policy_sysdig_cloudwatch_metric_stream_role.json
     }
+    tags = var.tags
 }
 
 resource "aws_iam_role" "sysdig_cloudwatch_integration_monitoring_role" {
@@ -25,6 +27,7 @@ resource "aws_iam_role" "sysdig_cloudwatch_integration_monitoring_role" {
     path   = "/"
     description = "A role to check status of stack creation and metric stream itself"
     assume_role_policy = data.aws_iam_policy_document.sysdig_cloudwatch_integration_monitoring_role_assume_role.json
+    tags = var.tags
 }
 
 resource "aws_iam_role_policy" "cloud_monitoring_policy" {

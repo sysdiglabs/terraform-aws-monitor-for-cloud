@@ -71,6 +71,90 @@ data "aws_iam_policy_document" "private_billing_assume_role" {
     }
 }
 
+data "aws_iam_policy_document" "sysdig_cost_athena_access_policy_document" {
+    statement {
+        sid    = "AthenaAccess"
+        effect = "Allow"
+        actions = ["athena:*"]
+        resources = [
+            "arn:${data.aws_partition.current.partition}:athena:${data.aws_region.current.name}:${data.aws_caller_identity.me.account_id}:workgroup/${aws_athena_workgroup.athena_workgroup.name}",
+        ]
+    }
+
+    statement {
+        sid    = "ReadAccessToAthenaCurDataViaGlue"
+        effect = "Allow"
+        actions = [
+            "glue:GetDatabase*",
+            "glue:GetTable*",
+            "glue:GetPartition*",
+            "glue:GetUserDefinedFunction",
+            "glue:BatchGetPartition"
+        ]
+        resources = [
+            "arn:aws:glue:*:*:catalog",
+            "arn:aws:glue:*:*:database/sysdig_aws_private_billing_test",
+            "arn:aws:glue:*:*:table/sysdig_aws_private_billing_test/*"
+        ]
+    }
+
+    statement {
+        sid    = "AthenaQueryResultsOutput"
+        effect = "Allow"
+        actions = [
+            "s3:GetBucketLocation",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "s3:ListBucketMultipartUploads",
+            "s3:ListMultipartUploadParts",
+            "s3:AbortMultipartUpload",
+            "s3:CreateBucket",
+            "s3:PutObject"
+        ]
+        resources = [
+            "arn:aws:s3:::${var.s3_bucket_name}/${var.s3_athena_bucket_prefix}*"
+        ]
+    }
+
+    statement {
+        sid    = "S3ReadAccessToAwsBillingData"
+        effect = "Allow"
+        actions = [
+            "s3:Get*",
+            "s3:List*"
+        ]
+        resources = [
+            "arn:aws:s3:::${var.s3_bucket_name}*"
+        ]
+    }
+
+    statement {
+        sid    = "ReadAccessToAccountTags"
+        effect = "Allow"
+        actions = [
+            "organizations:ListAccounts",
+            "organizations:ListTagsForResource",
+            "organizations:ListAccountsForParent",
+            "organizations:ListParents"
+        ]
+        resources = ["*"]
+    }
+
+    statement {
+        sid    = "ListEC2Metadata"
+        effect = "Allow"
+        actions = ["ec2:DescribeInstances"]
+        resources = ["*"]
+    }
+
+    statement {
+        sid    = "LakeFormation"
+        effect = "Allow"
+        actions = ["lakeformation:GetDataAccess"]
+        resources = ["*"]
+    }
+}
+
 data "aws_iam_policy_document" "spot_feed_policy_document" {
     statement {
         effect = "Allow"

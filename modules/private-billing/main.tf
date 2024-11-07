@@ -48,6 +48,21 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
                     "aws:SourceAccount" = "${data.aws_caller_identity.me.account_id}"
                 }
             }
+        },
+        {
+            Effect = "Allow"
+            Principal = {
+                AWS = aws_iam_role.cur_crawler_component_function.arn
+            }
+            Action   = [
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutObject"
+            ]
+            Resource = [
+                "arn:aws:s3:::${var.s3_bucket_name}",
+                "arn:aws:s3:::${var.s3_bucket_name}/*"
+            ]
         }
         ]
     })
@@ -57,13 +72,13 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
 
 resource "aws_cur_report_definition" "sysdig_created_cur" {
     provider            = aws.us-east-1
-    report_name         = "test_sysdig_aws_private_billing"
+    report_name         = "sysdig_aws_private_billing_test"
     time_unit           = "HOURLY"
     format              = "Parquet"
     compression         = "Parquet"
     s3_bucket           = var.s3_bucket_name
     s3_prefix           = var.s3_bucket_prefix
-    s3_region           = "us-east-1"
+    s3_region           = data.aws_region.current.name
     additional_schema_elements = ["RESOURCES"]
     additional_artifacts       = ["ATHENA"]
     report_versioning          = "OVERWRITE_REPORT"
@@ -73,10 +88,40 @@ resource "aws_cur_report_definition" "sysdig_created_cur" {
 }
 
 resource "aws_glue_catalog_database" "aws_cur_database" {
-    name = "test_sysdig_aws_private_billing"
+    name = "sysdig_aws_private_billing_test"
     catalog_id = data.aws_caller_identity.me.account_id
+
+    create_table_default_permission {
+        permissions = ["SELECT"]
+
+        principal {
+            data_lake_principal_identifier = "IAM_ALLOWED_PRINCIPALS"
+        }
+    }
     depends_on = [ aws_cur_report_definition.sysdig_created_cur ]
 }
+
+resource "aws_lakeformation_permissions" "sysdig_db_permissions" {
+    principal  = "IAM_ALLOWED_PRINCIPALS"
+    permissions = ["ALL"]
+
+    database {
+        name = aws_glue_catalog_database.aws_cur_database.name
+    }
+}
+
+resource "aws_lakeformation_data_lake_settings" "lake_settings" {
+    create_database_default_permissions {
+        principal  = "IAM_ALLOWED_PRINCIPALS"
+        permissions = ["ALL"]
+    }
+
+    create_table_default_permissions {
+        principal  = "IAM_ALLOWED_PRINCIPALS"
+        permissions = ["ALL"]
+    }
+}
+
 
 resource "aws_athena_workgroup" "athena_workgroup" {
     name = "sysdig-private-billing-athena-workgroup"
@@ -98,7 +143,7 @@ resource "aws_glue_crawler" "cur_crawler" {
     database_name = aws_glue_catalog_database.aws_cur_database.name
     
     s3_target {
-        path = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
+        path = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test"
 
         exclusions = [
             "**.json",
@@ -165,7 +210,7 @@ resource "aws_lambda_permission" "s3_cur_event_lambda" {
     action        = "lambda:InvokeFunction"
     function_name = aws_lambda_function.cur_initializer.function_name
     principal     = "s3.amazonaws.com"
-    source_account = var.sysdig_aws_account_id
+    source_account = data.aws_caller_identity.me.account_id
     source_arn    = "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket_name}"
 }
 
@@ -198,7 +243,7 @@ resource "null_resource" "put_s3_cur_notification" {
             "ResourceProperties": {
                 "BucketName": "${var.s3_bucket_name}",
                 "TargetLambdaArn": "${aws_lambda_function.cur_initializer.arn}",
-                "ReportKey": "${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
+                "ReportKey": "${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test"
             }
             }' \
             response.json
@@ -210,7 +255,7 @@ resource "null_resource" "put_s3_cur_notification" {
     triggers = {
         bucket_name    = var.s3_bucket_name
         target_lambda  = aws_lambda_function.cur_initializer.arn
-        report_key     = "${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing"
+        report_key     = "${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test"
     }
 
     depends_on = [aws_lambda_function.s3_cur_notification]
@@ -223,7 +268,7 @@ resource "aws_glue_catalog_table" "cur_report_status_table" {
     table_type    = "EXTERNAL_TABLE"
 
     storage_descriptor {
-        location      = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing/cost_and_usage_data_status/"
+        location      = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/cost_and_usage_data_status/"
         input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
         output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
 
@@ -253,6 +298,14 @@ resource "sysdig_monitor_cloud_account" "assume_role_cloud_account" {
     integration_type = "Cost"
     account_id = "${data.aws_caller_identity.me.account_id}"
     role_name = "${var.sysdig_cost_access_role_name}-${data.aws_caller_identity.me.account_id}"
+    config = {
+        athena_bucket_name = var.s3_bucket_name
+        athena_database_name = aws_glue_catalog_database.aws_cur_database.name
+        athena_region = data.aws_region.current.name
+        athena_workgroup = aws_athena_workgroup.athena_workgroup.name
+        athena_table_name = aws_glue_catalog_table.cur_report_status_table.name
+        spot_prices_bucket_name = var.s3_bucket_name
+    }
 
     depends_on = [ time_sleep.wait_60_seconds[0] ]
 }

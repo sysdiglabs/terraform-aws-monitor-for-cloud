@@ -51,9 +51,11 @@ resource "aws_iam_role_policy" "cur_crawler_inline_policy" {
                 Effect   = "Allow"
                 Action   = [
                     "s3:GetObject",
-                    "s3:PutObject"
+                    "s3:PutObject",
+                    "s3:ListBucket"
                 ]
-                Resource = "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing*"
+                // Resource = "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test*"
+                Resource = "arn:aws:s3:::${var.s3_bucket_name}/*"
             }
         ]
     })
@@ -139,4 +141,20 @@ resource "aws_iam_role_policy_attachment" "spot_feed_policy_attachment" {
 
     role       = "${var.sysdig_cost_access_role_name}-${data.aws_caller_identity.me.account_id}"
     policy_arn = aws_iam_policy.spot_feed_policy.arn
+
+    depends_on = [ aws_iam_role.private_billing_role ]
 }
+
+resource "aws_iam_policy" "sysdig_cost_athena_access_policy" {
+    policy      = data.aws_iam_policy_document.sysdig_cost_athena_access_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "sysdig_cost_athena_access_policy_attachment" {
+    count = var.create_new_role ? 1 : 0
+
+    role       = "${var.sysdig_cost_access_role_name}-${data.aws_caller_identity.me.account_id}"
+    policy_arn = aws_iam_policy.sysdig_cost_athena_access_policy.arn
+
+    depends_on = [ aws_iam_role.private_billing_role ]
+}
+

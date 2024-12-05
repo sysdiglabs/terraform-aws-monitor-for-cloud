@@ -1,6 +1,8 @@
 resource "aws_s3_bucket" "sysdig_curs3_bucket" {
     bucket = var.s3_bucket_name
     object_lock_enabled = false
+    force_destroy = true //todo: remove this line in production
+    tags = var.tags
 }
 
 resource "aws_s3_bucket_public_access_block" "sysdig_curs3_bucket_public_access_block" {
@@ -83,6 +85,7 @@ resource "aws_cur_report_definition" "sysdig_created_cur" {
     additional_artifacts       = ["ATHENA"]
     report_versioning          = "OVERWRITE_REPORT"
     refresh_closed_reports     = true
+    tags = var.tags
 
     depends_on = [ aws_s3_bucket_policy.sysdig_cur_bucket_policy ]
 }
@@ -90,9 +93,10 @@ resource "aws_cur_report_definition" "sysdig_created_cur" {
 resource "aws_glue_catalog_database" "aws_cur_database" {
     name = "sysdig_aws_private_billing_test"
     catalog_id = data.aws_caller_identity.me.account_id
+    tags = var.tags
 
     create_table_default_permission {
-        permissions = ["SELECT"]
+        permissions = ["ALL"]
 
         principal {
             data_lake_principal_identifier = "IAM_ALLOWED_PRINCIPALS"
@@ -110,22 +114,10 @@ resource "aws_lakeformation_permissions" "sysdig_db_permissions" {
     }
 }
 
-resource "aws_lakeformation_data_lake_settings" "lake_settings" {
-    create_database_default_permissions {
-        principal  = "IAM_ALLOWED_PRINCIPALS"
-        permissions = ["ALL"]
-    }
-
-    create_table_default_permissions {
-        principal  = "IAM_ALLOWED_PRINCIPALS"
-        permissions = ["ALL"]
-    }
-}
-
-
 resource "aws_athena_workgroup" "athena_workgroup" {
     name = "sysdig-private-billing-athena-workgroup"
     state = "ENABLED"
+    tags = var.tags
 
     configuration {
         result_configuration {
@@ -141,6 +133,7 @@ resource "aws_glue_crawler" "cur_crawler" {
     description = "A recurring crawler that keeps your CUR table in Athena up-to-date."
     role          = aws_iam_role.cur_crawler_component_function.arn
     database_name = aws_glue_catalog_database.aws_cur_database.name
+    tags = var.tags
     
     s3_target {
         path = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test"
@@ -178,6 +171,7 @@ resource "aws_lambda_function" "cur_initializer" {
     role          = aws_iam_role.cur_crawler_lambda_executor.arn
     memory_size   = 128
     reserved_concurrent_executions = 1
+    tags = var.tags
 
     environment {
         variables = {
@@ -227,6 +221,7 @@ resource "aws_lambda_function" "s3_cur_notification" {
     filename      = data.archive_file.lambda_notification_zip.output_path
     timeout       = 30
     role          = aws_iam_role.s3_cur_lambda_executor.arn
+    tags = var.tags
 
     reserved_concurrent_executions = 1
 }
@@ -303,7 +298,7 @@ resource "sysdig_monitor_cloud_account" "assume_role_cloud_account" {
         athena_database_name = aws_glue_catalog_database.aws_cur_database.name
         athena_region = data.aws_region.current.name
         athena_workgroup = aws_athena_workgroup.athena_workgroup.name
-        athena_table_name = aws_glue_catalog_table.cur_report_status_table.name
+        athena_table_name = aws_glue_catalog_database.aws_cur_database.name
         spot_prices_bucket_name = var.s3_bucket_name
     }
 

@@ -6,7 +6,7 @@ exports.handler = function(event, context, callback) {
     } else {
         const glue = new AWS.Glue();
         const suffix = process.env.CrawlerSuffix
-        glue.startCrawler({ Name: `Test-AWSCURCrawler-${suffix}` }, function(err, data) {
+        glue.startCrawler({ Name: `AWSCURCrawler-${suffix}` }, function(err, data) {
             if (err) {
                 const responseData = JSON.parse(this.httpResponse.body);
                 if (responseData['__type'] == 'CrawlerRunningException') {

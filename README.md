@@ -1,12 +1,13 @@
 # AWS Cloudwatch Metrics Integration with Sysdig Monitor Terraform Module
 
-This Terraform module integrates AWS Cloudwatch with Sysdig Monitor, enabling users to directly consume AWS Cloudwatch metrics within Sysdig Monitor.
+This Terraform module integrates AWS Cloudwatch with Sysdig Monitor, enabling users to directly consume AWS Cloudwatch metrics within Sysdig Monitor and Private Billing functionalities.
 
 ## Usage
 
 There are several ways to integrate AWS Cloudwatch Metrics with Sysdig Monitor.
 - **[`/examples`](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples)** for the most common scenarios
   - [Cloudwatch Metrics Stream Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/cloudwatch-metrics-stream-single-account/)
+  - [Private Billing Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/private-billing-single-account/)
 
 <br/>
 
@@ -95,6 +96,33 @@ Precise AWS resources may vary depending on module configuration but in general,
 * aws_iam_role_policy.cloud_monitoring_policy
 * aws_kinesis_firehose_delivery_stream.sysdig_metric_kinesis_firehose
 * aws_s3_bucket.sysdig_stream_backup_bucket
+
+
+### AWS Resources Created for the AWS Private Billing Integration
+Precise AWS resources may vary depending on module configuration but in general, the following AWS resources are created as part of the AWS Private Billing Integration.
+
+* aws_s3_bucket.sysdig_curs3_bucket
+* aws_s3_bucket_policy.sysdig_cur_bucket_policy
+* aws_cur_report_definition.sysdig_created_cur
+* aws_glue_catalog_database.aws_cur_database
+* aws_lakeformation_permissions.sysdig_db_permissions
+* aws_athena_workgroup.athena_workgroup
+* aws_glue_crawler.cur_crawler
+* aws_lambda_function.cur_initializer
+* aws_lambda_permission.s3_cur_event_lambda
+* aws_lambda_function.s3_cur_notification
+* aws_glue_catalog_table.cur_report_status_table
+* sysdig_monitor_cloud_account.assume_role_cloud_account
+* aws_iam_role.cur_crawler_component_function
+* aws_iam_role_policy.cur_crawler_inline_policy
+* aws_iam_role_policy.cur_kms_decryption_inline_policy
+* aws_iam_role.cur_crawler_lambda_executor
+* aws_iam_role_policy.cur_crawler_lambda_executor_inline_policy
+* aws_iam_role.s3_cur_lambda_executor
+* aws_iam_policy.s3_cur_lambda_executor_policy
+* aws_iam_role.private_billing_role
+* aws_iam_policy.spot_feed_policy
+* aws_iam_policy.sysdig_cost_athena_access_policy
 
 ## Authors
 

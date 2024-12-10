@@ -137,17 +137,18 @@ resource "aws_iam_role" "private_billing_role" {
 }
 
 resource "aws_iam_policy" "spot_feed_policy" {
+    count = var.spot_data_feed_bucket_name != "" ? 1 : 0 
     policy      = data.aws_iam_policy_document.spot_feed_policy_document.json
     tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "spot_feed_policy_attachment" {
-    count = var.create_new_role ? 1 : 0
+    count = var.spot_data_feed_bucket_name != "" ? 1 : 0 
 
     role       = "${var.sysdig_cost_access_role_name}-${data.aws_caller_identity.me.account_id}"
-    policy_arn = aws_iam_policy.spot_feed_policy.arn
+    policy_arn = aws_iam_policy.spot_feed_policy[0].arn
 
-    depends_on = [ aws_iam_role.private_billing_role ]
+    depends_on = [ aws_iam_role.private_billing_role, aws_iam_policy.spot_feed_policy[0] ]
 }
 
 resource "aws_iam_policy" "sysdig_cost_athena_access_policy" {

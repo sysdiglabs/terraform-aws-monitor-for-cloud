@@ -74,7 +74,7 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
 
 resource "aws_cur_report_definition" "sysdig_created_cur" {
     provider            = aws.us-east-1
-    report_name         = "sysdig_aws_private_billing_test"
+    report_name         = var.sysdig_cost_report_file_name
     time_unit           = "HOURLY"
     format              = "Parquet"
     compression         = "Parquet"
@@ -91,7 +91,7 @@ resource "aws_cur_report_definition" "sysdig_created_cur" {
 }
 
 resource "aws_glue_catalog_database" "aws_cur_database" {
-    name = "sysdig_aws_private_billing_test"
+    name = var.sysdig_cost_report_file_name
     catalog_id = data.aws_caller_identity.me.account_id
     tags = var.tags
 
@@ -129,14 +129,14 @@ resource "aws_athena_workgroup" "athena_workgroup" {
 }
 
 resource "aws_glue_crawler" "cur_crawler" {
-    name          = "Test-AWSCURCrawler-sysdig_aws_private_billing"
+    name          = "AWSCURCrawler-${var.sysdig_cost_crawler_name_suffix}"
     description = "A recurring crawler that keeps your CUR table in Athena up-to-date."
     role          = aws_iam_role.cur_crawler_component_function.arn
     database_name = aws_glue_catalog_database.aws_cur_database.name
     tags = var.tags
     
     s3_target {
-        path = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test"
+        path = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/${var.sysdig_cost_report_file_name}/${var.sysdig_cost_report_file_name}"
 
         exclusions = [
             "**.json",
@@ -175,7 +175,7 @@ resource "aws_lambda_function" "cur_initializer" {
 
     environment {
         variables = {
-            CrawlerSuffix = "sysdig_aws_private_billing"
+            CrawlerSuffix = "${var.sysdig_cost_crawler_name_suffix}"
         }
     }
 }
@@ -238,7 +238,7 @@ resource "null_resource" "put_s3_cur_notification" {
             "ResourceProperties": {
                 "BucketName": "${var.s3_bucket_name}",
                 "TargetLambdaArn": "${aws_lambda_function.cur_initializer.arn}",
-                "ReportKey": "${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test"
+                "ReportKey": "${var.s3_bucket_prefix}/${var.sysdig_cost_report_file_name}/${var.sysdig_cost_report_file_name}"
             }
             }' \
             response.json
@@ -250,7 +250,7 @@ resource "null_resource" "put_s3_cur_notification" {
     triggers = {
         bucket_name    = var.s3_bucket_name
         target_lambda  = aws_lambda_function.cur_initializer.arn
-        report_key     = "${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test"
+        report_key     = "${var.s3_bucket_prefix}/${var.sysdig_cost_report_file_name}/${var.sysdig_cost_report_file_name}"
     }
 
     depends_on = [aws_lambda_function.s3_cur_notification]
@@ -263,7 +263,7 @@ resource "aws_glue_catalog_table" "cur_report_status_table" {
     table_type    = "EXTERNAL_TABLE"
 
     storage_descriptor {
-        location      = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/cost_and_usage_data_status/"
+        location      = "s3://${var.s3_bucket_name}/${var.s3_bucket_prefix}/${var.sysdig_cost_report_file_name}/cost_and_usage_data_status/"
         input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
         output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
 

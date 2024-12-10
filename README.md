@@ -4,7 +4,7 @@ Monitor repo for Terraform AWS modules in sysdiglabs
 This repository provides the CloudWatch Metrics Stream and Private Billing functionalities
 
 * **[CloudWatch Metrics Stream](https://docs.sysdig.com/en/docs/sysdig-monitor/integrations/cloud-accounts/connect-aws-account/cloudwatch-monitoring/)**:  You can collect both general metadata and various types of CloudWatch metrics from your AWS environment for this purpose <br/>
-* **[Private Billing](https://docs.sysdig.com/en/docs/sysdig-monitor/integrations/cloud-accounts/connect-aws-account/cost-and-usage-reporting/)**:  TODO Description <br/>
+* **[Private Billing](https://docs.sysdig.com/en/docs/sysdig-monitor/integrations/cloud-accounts/connect-aws-account/cost-and-usage-reporting/)**:  You can retrieve all the cluster cost information through Athena over AWS billing cost service  <br/>
 
 ## Usage
 

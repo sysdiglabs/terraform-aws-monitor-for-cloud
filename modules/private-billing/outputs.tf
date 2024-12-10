@@ -9,7 +9,7 @@ output "athena_bucket_name" {
 }
 
 output "athena_database_name" {
-    value       = "test_sysdig_aws_private_billing"
+    value       = var.sysdig_cost_report_file_name
     description = "Prefix of the S3 bucket where the Athena query results are stored"
 }
 

@@ -115,7 +115,7 @@ resource "aws_lakeformation_permissions" "sysdig_db_permissions" {
 }
 
 resource "aws_athena_workgroup" "athena_workgroup" {
-    name = "sysdig-private-billing-athena-workgroup"
+    name = "${var.sysdig_cost_report_file_name}-athena-workgroup"
     state = "ENABLED"
     tags = var.tags
 

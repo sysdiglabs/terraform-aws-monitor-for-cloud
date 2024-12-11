@@ -55,7 +55,7 @@ resource "aws_iam_role_policy" "cur_crawler_inline_policy" {
                     "s3:PutObject",
                     "s3:ListBucket"
                 ]
-                Resource = "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing_test/sysdig_aws_private_billing_test*"
+                Resource = "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket_name}/${var.s3_bucket_prefix}/sysdig_aws_private_billing/sysdig_aws_private_billing*"
             }
         ]
     })

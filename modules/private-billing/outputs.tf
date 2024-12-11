@@ -24,6 +24,6 @@ output "athena_table_name" {
 }
 
 output "athena_workgroup_name" {
-    value       = "sysdig-private-billing-athena-workgroup"
+    value       = "${var.sysdig_cost_report_file_name}-athena-workgroup"
     description = "Name of the Athena workgroup"
 }

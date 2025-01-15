@@ -3,10 +3,11 @@ resource "aws_iam_role" "cur_crawler_component_function" {
     path               = "/"
     assume_role_policy = data.aws_iam_policy_document.cur_crawler_component_function_assume_role.json
     tags = var.tags
-    
-    managed_policy_arns = [
-        "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSGlueServiceRole"
-    ]
+}
+
+resource "aws_iam_role_policy_attachment" "glue_service_role" {
+    role       = aws_iam_role.cur_crawler_component_function.name
+    policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
 resource "aws_iam_role_policy" "cur_crawler_inline_policy" {

@@ -19,7 +19,7 @@ output "athena_region" {
 }
 
 output "athena_table_name" {
-    value       = "sysdig_private_billing_cost_and_usage_data_status"
+    value       = var.sysdig_cost_report_file_name
     description = "Name of the Athena table"
 }
 

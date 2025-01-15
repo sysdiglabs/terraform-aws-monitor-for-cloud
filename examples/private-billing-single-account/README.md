@@ -47,7 +47,7 @@ provider "sysdig" {
 }
 
 module "billing_module" {
-    source = "sysdiglabs/terraform-aws-monitor-for-cloud/examples/private-billing-single-account"
+    source = "sysdiglabs/monitor-for-cloud/aws//modules/private-billing"
 
     s3_bucket_name = "billing-bucket-test"
     s3_bucket_prefix = "billing-data"

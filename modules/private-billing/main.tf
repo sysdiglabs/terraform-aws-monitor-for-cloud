@@ -18,6 +18,7 @@ resource "aws_s3_bucket_policy" "sysdig_cur_bucket_policy" {
     bucket = aws_s3_bucket.sysdig_curs3_bucket.id
 
     policy = jsonencode({
+        Version = "2008-10-17"
         Statement = [
         {
             Effect = "Allow"

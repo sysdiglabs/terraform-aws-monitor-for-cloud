@@ -1,5 +1,27 @@
 # Private Billing
 
+Deploy Private Billing feature in a single AWS account.<br/>
+All the required resources and workloads will be run under the same account.
+
+### Notice
+* **Resource creation inventory** Find all the resources created by Sysdig examples in the resource-group `sysdig-monitor-for-cloud` (AWS Resource Group & Tag Editor) <br/><br/>
+* **Deployment cost** This example will create resources that cost money.<br/>Run `terraform destroy` when you don't need them anymore
+
+![diagram](https://raw.githubusercontent.com/sysdiglabs/terraform-aws-monitor-for-cloud/main/examples/private-billing-single-account/diagram.png)
+
+## Prerequisites
+
+Minimum requirements:
+
+1. Configure [Terraform **AWS** Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+2. Monitor requirements, as input variable value
+    ```
+    sysdig_monitor_api_token=<Sysdig API Key>
+    sysdig_aws_account_id=<Sysdig AWS accountId>
+    sysdig_external_id=<Sysdig external ID>
+    ```
+
+
 ## Requirements
 
 | Name | Version |

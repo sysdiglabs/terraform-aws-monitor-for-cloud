@@ -93,8 +93,8 @@ data "aws_iam_policy_document" "sysdig_cost_athena_access_policy_document" {
         ]
         resources = [
             "arn:aws:glue:*:*:catalog",
-            "arn:aws:glue:*:*:database/sysdig_aws_private_billing",
-            "arn:aws:glue:*:*:table/sysdig_aws_private_billing/*"
+            "arn:aws:glue:*:*:database/${var.sysdig_cost_report_file_name}",
+            "arn:aws:glue:*:*:table/${var.sysdig_cost_report_file_name}/*"
         ]
     }
 

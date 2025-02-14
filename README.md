@@ -10,7 +10,7 @@ Requires the [Sysdig Terraform Provider](https://github.com/sysdiglabs/terraform
 
 ## Usage
 
-There are several ways to integrate AWS Cloudwatch Metrics Stream of setup AWS Private Billing with Sysdig Monitor.
+There are several ways to integrate AWS Cloudwatch Metrics Stream and setup AWS Private Billing with Sysdig Monitor.
 - **[`/examples`](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples)** for the most common scenarios
   - [Cloudwatch Metrics Stream Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/cloudwatch-metrics-stream-single-account/)
   - [Private Billing Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/private-billing-single-account/)

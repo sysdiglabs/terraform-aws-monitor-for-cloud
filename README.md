@@ -1,17 +1,23 @@
-# AWS Cloudwatch Metrics Integration with Sysdig Monitor Terraform Module
+# Sysdig Monitor for Cloud in AWS
 
 This Terraform module integrates AWS Cloudwatch with Sysdig Monitor, enabling users to directly consume AWS Cloudwatch metrics within Sysdig Monitor and Private Billing functionalities.
+Terraform to create appropriate AWS resources and Sysdig Monitor Cloud account for:
+* [Cloudwatch Metrics Stream integration](https://docs.sysdig.com/en/docs/sysdig-monitor/cloud-accounts/connect-aws-account/cloudwatch-monitoring/)
+* [Cost Advisor private billing integration](https://docs.sysdig.com/en/docs/sysdig-monitor/cloud-accounts/connect-aws-account/cost-and-usage-reporting/)
+
+Requires the [Sysdig Terraform Provider](https://github.com/sysdiglabs/terraform-provider-sysdig).
+
 
 ## Usage
 
-There are several ways to integrate AWS Cloudwatch Metrics with Sysdig Monitor.
+There are several ways to integrate AWS Cloudwatch Metrics Stream and setup AWS Private Billing with Sysdig Monitor.
 - **[`/examples`](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples)** for the most common scenarios
   - [Cloudwatch Metrics Stream Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/cloudwatch-metrics-stream-single-account/)
   - [Private Billing Single Account](https://github.com/sysdiglabs/terraform-aws-monitor-for-cloud/tree/master/examples/private-billing-single-account/)
 
 <br/>
 
-## IAM Permissions for Sysdig Cross-Account Role
+## IAM Permissions for Sysdig Cross-Account Role - Cloudwatch Metrics Stream
 Sysdig requires AWS IAM permissions to display the correct status and metadata for the Cloudwatch Metric Stream integration in the web UI. If `create_new_role` is set to `true`, the following IAM permissions are granted to an IAM Role that Sysdig Monitor will use to display the correct metadata for your Cloudwatch Metric Stream.
 
 ```
@@ -62,6 +68,104 @@ Sysdig requires AWS IAM permissions to display the correct status and metadata f
 			"Resource": "*"
 		}
 	]
+}
+```
+
+## IAM Permissions for Sysdig Cross-Account Role - Cloudwatch Metrics Stream
+Sysdig requires AWS IAM permissions to fetch billing data and metadata for the Private Billing integration. If `create_new_role` is set to `true`, the following IAM permissions are granted to an IAM Role..
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "athena:*"
+            ],
+            "Resource": [
+                "arn:aws:athena:us-east-1:<AWS account id>:workgroup/<Athena workgroup name>"
+            ],
+            "Effect": "Allow",
+            "Sid": "AthenaAccess"
+        },
+        {
+            "Action": [
+                "glue:GetDatabase*",
+                "glue:GetTable*",
+                "glue:GetPartition*",
+                "glue:GetUserDefinedFunction",
+                "glue:BatchGetPartition"
+            ],
+            "Resource": [
+                "arn:aws:glue:*:*:catalog",
+                "arn:aws:glue:*:*:database/<Athena database>",
+                "arn:aws:glue:*:*:table/<Athena table with CUR data>/*"
+            ],
+            "Effect": "Allow",
+            "Sid": "ReadAccessToAthenaCurDataViaGlue"
+        },
+        {
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:ListMultipartUploadParts",
+                "s3:AbortMultipartUpload",
+                "s3:CreateBucket",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<S3 bucket name for Athena query results>/<prefix for Athena query results>*"
+            ],
+            "Effect": "Allow",
+            "Sid": "AthenaQueryResultsOutput"
+        },
+        {
+            "Action": [
+                "s3:Get*",
+                "s3:List*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<S3 bucket for CUR data>*"
+            ],
+            "Effect": "Allow",
+            "Sid": "S3ReadAccessToAwsBillingData"
+        },
+        {
+            "Action": [
+                "organizations:ListAccounts",
+                "organizations:ListTagsForResource",
+                "organizations:ListAccountsForParent",
+                "organizations:ListParents"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow",
+            "Sid": "ReadAccessToAccountTags"
+        },
+        {
+            "Action": [
+                "ec2:DescribeInstances"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow",
+            "Sid": "ListEC2Metadata"
+        },
+        {
+            "Action": [
+                "lakeformation:GetDataAccess"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow",
+            "Sid": "LakeFormation"
+        }
+    ]
 }
 ```
 

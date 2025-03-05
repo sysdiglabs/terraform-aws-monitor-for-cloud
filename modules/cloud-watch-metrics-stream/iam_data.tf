@@ -22,18 +22,18 @@ data "aws_iam_policy_document" "iam_role_task_policy_service_role" {
             "s3:PutBucketTagging"
         ]
         resources = [
-            "arn:aws:s3:::sysdig-backup-bucket*",
-            "arn:aws:s3:::sysdig-backup-bucket*/*"
+            "arn:${data.aws_partition.current.partition}:s3:::sysdig-backup-bucket*",
+            "arn:${data.aws_partition.current.partition}:s3:::sysdig-backup-bucket*/*"
         ]
     }
-    
+
     statement {
         effect = "Allow"
         actions = [
             "logs:PutLogEvents"
         ]
         resources = [
-            "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.me.account_id}:log-group:sysdig-cloudwatch-metric-stream*"
+            "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.me.account_id}:log-group:sysdig-cloudwatch-metric-stream*"
         ]
     }
 }
@@ -57,7 +57,7 @@ data "aws_iam_policy_document" "iam_role_task_policy_sysdig_cloudwatch_metric_st
             "firehose:PutRecordBatch"
         ]
         resources = [
-            "arn:aws:firehose:${data.aws_region.current.name}:${data.aws_caller_identity.me.account_id}:deliverystream/sysdig-cloudwatch-metrics-stream*"
+            "arn:${data.aws_partition.current.partition}:firehose:${data.aws_region.current.name}:${data.aws_caller_identity.me.account_id}:deliverystream/sysdig-cloudwatch-metrics-stream*"
         ]
     }
 }
@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "sysdig_cloudwatch_integration_monitoring_role_as
     statement {
         effect = "Allow"
         principals {
-            identifiers = ["arn:aws:iam::${var.sysdig_aws_account_id}:root"]
+            identifiers = ["arn:${data.aws_partition.current.partition}:iam::${var.sysdig_aws_account_id}:root"]
             type        = "AWS"
         }
         actions = ["sts:AssumeRole"]
@@ -87,10 +87,10 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
             "s3:GetObjectAttributes"
         ]
         resources = [
-            "arn:aws:s3:::sysdig-backup-bucket*"
+            "arn:${data.aws_partition.current.partition}:s3:::sysdig-backup-bucket*"
         ]
     }
-    
+
     statement {
         effect = "Allow"
         actions = [
@@ -98,20 +98,20 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
             "cloudwatch:ListMetricStreams"
         ]
         resources = [
-            "arn:aws:cloudwatch:*:${data.aws_caller_identity.me.account_id}:metric-stream/*"
+            "arn:${data.aws_partition.current.partition}:cloudwatch:*:${data.aws_caller_identity.me.account_id}:metric-stream/*"
         ]
     }
-    
+
     statement {
         effect = "Allow"
         actions = [
             "firehose:DescribeDeliveryStream"
         ]
         resources = [
-            "arn:aws:firehose:*:${data.aws_caller_identity.me.account_id}:deliverystream/*"
+            "arn:${data.aws_partition.current.partition}:firehose:*:${data.aws_caller_identity.me.account_id}:deliverystream/*"
         ]
     }
-        
+
     statement {
         effect = "Allow"
         actions = [
@@ -122,7 +122,7 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
             "*"
         ]
     }
-        
+
     statement {
         effect = "Allow"
         actions = [
@@ -132,7 +132,7 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
             "*"
         ]
     }
-        
+
     statement {
         effect = "Allow"
         actions = [

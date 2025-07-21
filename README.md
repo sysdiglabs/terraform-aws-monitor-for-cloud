@@ -26,28 +26,6 @@ Sysdig requires AWS IAM permissions to display the correct status and metadata f
 	"Statement": [
 		{
 			"Action": [
-				"s3:ListBucket",
-				"s3:GetObjectAttributes",
-				"s3:GetObject"
-			],
-			"Effect": "Allow",
-			"Resource": "arn:aws:s3:::sysdig-backup-bucket*"
-		},
-		{
-			"Action": [
-				"cloudwatch:ListMetricStreams",
-				"cloudwatch:GetMetricStream"
-			],
-			"Effect": "Allow",
-			"Resource": "arn:aws:cloudwatch:*:<AWS-accountID>:metric-stream/*"
-		},
-		{
-			"Action": "firehose:DescribeDeliveryStream",
-			"Effect": "Allow",
-			"Resource": "arn:aws:firehose:*:<AWS-accountID>:deliverystream/*"
-		},
-		{
-			"Action": [
 				"cloudwatch:ListMetrics",
 				"cloudwatch:GetMetricData"
 			],
@@ -56,14 +34,6 @@ Sysdig requires AWS IAM permissions to display the correct status and metadata f
 		},
 		{
 			"Action": "ec2:DescribeInstances",
-			"Effect": "Allow",
-			"Resource": "*"
-		},
-		{
-			"Action": [
-				"s3:ListBucket",
-				"s3:ListAllMyBuckets"
-			],
 			"Effect": "Allow",
 			"Resource": "*"
 		}

@@ -79,38 +79,6 @@ data "aws_iam_policy_document" "sysdig_cloudwatch_integration_monitoring_role_as
 }
 
 data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
-    statement {
-        effect = "Allow"
-        actions = [
-            "s3:ListBucket",
-            "s3:GetObject",
-            "s3:GetObjectAttributes"
-        ]
-        resources = [
-            "arn:${data.aws_partition.current.partition}:s3:::sysdig-backup-bucket*"
-        ]
-    }
-
-    statement {
-        effect = "Allow"
-        actions = [
-            "cloudwatch:GetMetricStream",
-            "cloudwatch:ListMetricStreams"
-        ]
-        resources = [
-            "arn:${data.aws_partition.current.partition}:cloudwatch:*:${data.aws_caller_identity.me.account_id}:metric-stream/*"
-        ]
-    }
-
-    statement {
-        effect = "Allow"
-        actions = [
-            "firehose:DescribeDeliveryStream"
-        ]
-        resources = [
-            "arn:${data.aws_partition.current.partition}:firehose:*:${data.aws_caller_identity.me.account_id}:deliverystream/*"
-        ]
-    }
 
     statement {
         effect = "Allow"
@@ -133,14 +101,4 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
         ]
     }
 
-    statement {
-        effect = "Allow"
-        actions = [
-            "s3:ListAllMyBuckets",
-            "s3:ListBucket"
-        ]
-        resources = [
-            "*"
-        ]
-    }
 }

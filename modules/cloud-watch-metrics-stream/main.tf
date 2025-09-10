@@ -87,17 +87,17 @@ resource "time_sleep" "wait_60_seconds" {
 }
 
 resource "sysdig_monitor_cloud_account" "assume_role_cloud_account" {
-    count = var.create_new_role ? 1 : 0
+    count = var.secret_key == "" || var.access_key_id == ""  ? 1 : 0
     cloud_provider = "AWS"
     integration_type = "Metrics Streams"
     account_id = "${data.aws_caller_identity.me.account_id}"
-    role_name = "${var.monitoring_role_name}-${data.aws_caller_identity.me.account_id}"
+    role_name   = var.create_new_role ? "${var.monitoring_role_name}-${data.aws_caller_identity.me.account_id}" : var.monitoring_role_name
 
     depends_on = [ time_sleep.wait_60_seconds[0] ]
 }
 
 resource "sysdig_monitor_cloud_account" "secret_key_cloud_account" {
-    count = var.create_new_role || var.secret_key == "" || var.access_key_id == "" ? 0 : 1
+    count = var.secret_key == "" || var.access_key_id == "" ? 0 : 1
     cloud_provider = "AWS"
     integration_type = "Metrics Streams"
     secret_key = var.secret_key

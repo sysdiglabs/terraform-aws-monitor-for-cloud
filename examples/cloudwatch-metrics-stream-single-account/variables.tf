@@ -20,10 +20,10 @@ variable "sysdig_monitor_url" {
 variable "sysdig_aws_account_id" {
     description = "Sysdig AWS accountId that will assume MonitoringRole to check status of CloudWatch metric stream"
     type        = string
-    default     = "default"
+    default     = ""
     validation {
-        condition     = length(var.sysdig_aws_account_id) > 1
-        error_message = "Sysdig AWS Account ID is required."
+        condition     = var.create_new_role == false || length(var.sysdig_aws_account_id) > 1
+        error_message = "Sysdig AWS Account ID is required when create_new_role is true."
     }
 }
 
@@ -46,22 +46,26 @@ variable "create_new_role" {
 variable "sysdig_external_id" {
     description = "Your Sysdig External ID which will be used when assuming roles in the account"
     type        = string
-    default     = "default"
+    default     = ""
     validation {
-        condition     = length(var.sysdig_external_id) > 1
-        error_message = "Sysdig external ID is required."
+        condition     = var.create_new_role == false || length(var.sysdig_external_id) > 1
+        error_message = "Sysdig external ID is required when create_new_role is true."
     }
 }
 
 variable "secret_key" {
-    description = "value of the secret key"
+    description = "Value of the secret key to check status of CloudWatch metric stream"
     type        = string
     sensitive   = true
     default = ""
+    validation {
+        condition     = (var.secret_key == "" && var.access_key_id == "") || (var.secret_key != "" && var.access_key_id != "")
+        error_message = "Secret key and access key id must be both set or both empty."
+    }
 }
 
 variable "access_key_id" {
-    description = "value of the access key id"
+    description = "Value of the access key id to check status of CloudWatch metric stream"
     type        = string
     default = ""
 }

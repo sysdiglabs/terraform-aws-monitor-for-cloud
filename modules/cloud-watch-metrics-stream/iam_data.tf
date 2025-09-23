@@ -101,4 +101,14 @@ data "aws_iam_policy_document" "iam_role_task_policy_cloud_monitoring_policy" {
         ]
     }
 
+    statement {
+        effect = "Allow"
+        actions = [
+            "s3:ListAllMyBuckets",
+            "s3:ListBucket"
+        ]
+        resources = [
+            "*"
+        ]
+    }
 }

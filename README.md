@@ -36,12 +36,20 @@ Sysdig requires AWS IAM permissions to display the correct status and metadata f
 			"Action": "ec2:DescribeInstances",
 			"Effect": "Allow",
 			"Resource": "*"
+		},
+        {
+			"Action": [
+				"s3:ListBucket",
+				"s3:ListAllMyBuckets"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
 		}
 	]
 }
 ```
 
-## IAM Permissions for Sysdig Cross-Account Role - Cloudwatch Metrics Stream
+## IAM Permissions for Sysdig Cross-Account Role - Cost Advisor private billing integration
 Sysdig requires AWS IAM permissions to fetch billing data and metadata for the Private Billing integration. If `create_new_role` is set to `true`, the following IAM permissions are granted to an IAM Role..
 
 ```

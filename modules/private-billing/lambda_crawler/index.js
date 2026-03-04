@@ -1,31 +1,30 @@
-const AWS = require('aws-sdk');
+const { GlueClient, StartCrawlerCommand } = require('@aws-sdk/client-glue');
 const response = require('cfn-response');
-exports.handler = function(event, context, callback) {
+
+exports.handler = async function(event, context) {
     if (event.RequestType === 'Delete') {
-        response.send(event, context, response.SUCCESS);
-    } else {
-        const glue = new AWS.Glue();
-        const suffix = process.env.CrawlerSuffix
-        glue.startCrawler({ Name: `AWSCURCrawler-${suffix}` }, function(err, data) {
-            if (err) {
-                const responseData = JSON.parse(this.httpResponse.body);
-                if (responseData['__type'] == 'CrawlerRunningException') {
-                    callback(null, responseData.Message);
-                } else {
-                    const responseString = JSON.stringify(responseData);
-                    if (event.ResponseURL) {
-                        response.send(event, context, response.FAILED,{ msg: responseString });
-                    } else {
-                        callback(responseString);
-                    }
-                }
-            } else {
-                if (event.ResponseURL) {
-                    response.send(event, context, response.SUCCESS);
-                } else {
-                    callback(null, response.SUCCESS);
-                }
-            }
-        });
+        await response.send(event, context, response.SUCCESS);
+        return;
+    }
+
+    const glue = new GlueClient({});
+    const suffix = process.env.CrawlerSuffix;
+
+    try {
+        const data = await glue.send(new StartCrawlerCommand({ Name: `AWSCURCrawler-${suffix}` }));
+        if (event.ResponseURL) {
+            await response.send(event, context, response.SUCCESS);
+        }
+        return data;
+    } catch (err) {
+        if (err.name === 'CrawlerRunningException') {
+            return err.message;
+        }
+        const responseString = JSON.stringify({ name: err.name, message: err.message });
+        if (event.ResponseURL) {
+            await response.send(event, context, response.FAILED, { msg: responseString });
+        } else {
+            throw err;
+        }
     }
 };

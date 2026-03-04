@@ -119,6 +119,7 @@ resource "aws_athena_workgroup" "athena_workgroup" {
     name = "${var.sysdig_cost_report_file_name}-athena-workgroup"
     state = "ENABLED"
     tags = var.tags
+    force_destroy = true
 
     configuration {
         result_configuration {
@@ -166,7 +167,7 @@ data "archive_file" "lambda_crawler_zip" {
 resource "aws_lambda_function" "cur_initializer" {
     function_name = "AWSCURInitializer-${data.aws_caller_identity.me.account_id}"
     handler       = "index.handler"
-    runtime       = "nodejs16.x"
+    runtime       = "nodejs22.x"
     filename      = data.archive_file.lambda_crawler_zip.output_path
     timeout       = 30
     role          = aws_iam_role.cur_crawler_lambda_executor.arn
@@ -218,7 +219,7 @@ data "archive_file" "lambda_notification_zip" {
 resource "aws_lambda_function" "s3_cur_notification" {
     function_name = "s3_cur_notification-${data.aws_caller_identity.me.account_id}"
     handler       = "index.handler"
-    runtime       = "nodejs16.x"
+    runtime       = "nodejs22.x"
     filename      = data.archive_file.lambda_notification_zip.output_path
     timeout       = 30
     role          = aws_iam_role.s3_cur_lambda_executor.arn

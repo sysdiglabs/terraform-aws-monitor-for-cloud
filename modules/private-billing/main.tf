@@ -119,6 +119,7 @@ resource "aws_athena_workgroup" "athena_workgroup" {
     name = "${var.sysdig_cost_report_file_name}-athena-workgroup"
     state = "ENABLED"
     tags = var.tags
+    force_destroy = true
 
     configuration {
         result_configuration {
